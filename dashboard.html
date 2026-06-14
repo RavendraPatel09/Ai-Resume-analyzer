@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard · AI Career Mentor (preview)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: { extend: { colors: { primary: 'hsl(250 84% 60%)', accent: 'hsl(199 89% 48%)' } } },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'Inter', system-ui, sans-serif;
+      }
+      .glass {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(16px);
+      }
+      .gradient-text {
+        background: linear-gradient(90deg, hsl(250 84% 60%), hsl(199 89% 48%));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .aurora {
+        background:
+          radial-gradient(60% 50% at 20% 10%, hsla(250, 84%, 60%, 0.16), transparent),
+          radial-gradient(50% 50% at 90% 20%, hsla(199, 89%, 48%, 0.16), transparent);
+      }
+    </style>
+  </head>
+  <body class="aurora min-h-screen bg-slate-950 text-slate-100">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="glass sticky top-0 hidden h-screen w-64 shrink-0 overflow-y-auto p-4 lg:block">
+        <a href="index.html" class="mb-6 flex items-center gap-2 px-2 font-bold">
+          <span>✨</span><span class="gradient-text">Career Mentor</span>
+        </a>
+        <nav id="nav" class="flex flex-col gap-1"></nav>
+      </aside>
+
+      <div class="flex-1 px-4 pb-12 pt-4 sm:px-6">
+        <!-- Topbar -->
+        <header class="glass mb-6 flex h-14 items-center justify-between rounded-xl px-4">
+          <span class="text-sm opacity-60">🔎 Search anything…</span>
+          <div class="flex items-center gap-3">
+            <span>🔔</span>
+            <div
+              class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-primary to-accent text-sm font-semibold text-white"
+            >
+              R
+            </div>
+          </div>
+        </header>
+
+        <main class="mx-auto max-w-6xl space-y-6">
+          <div>
+            <h1 class="text-3xl font-bold">Welcome back 👋</h1>
+            <p class="opacity-60">Here's your career momentum this week.</p>
+          </div>
+
+          <!-- Stat cards -->
+          <div id="stats" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
+
+          <div class="grid gap-6 lg:grid-cols-3">
+            <div class="glass rounded-2xl p-6 lg:col-span-2">
+              <h3 class="font-semibold">Score progression</h3>
+              <p class="text-sm opacity-60">Resume vs ATS scores over time</p>
+              <div class="mt-4 h-64"><canvas id="chart"></canvas></div>
+            </div>
+
+            <!-- Next Action -->
+            <div class="glass rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 p-6">
+              <div class="text-sm text-primary">✨ AI Next Action</div>
+              <h3 class="mt-1 text-xl font-bold">Resume Score: 84%</h3>
+              <div class="mt-4 space-y-4 text-sm">
+                <div>
+                  <p class="text-xs uppercase tracking-wide opacity-50">Next recommended step</p>
+                  <p class="mt-1 font-semibold">Strengthen your Python projects</p>
+                  <p class="opacity-60">Your impact score is the lowest dimension — quantify outcomes in 2 bullets.</p>
+                </div>
+                <div>
+                  <p class="text-xs uppercase tracking-wide opacity-50">After that</p>
+                  <ul class="mt-1 space-y-1 opacity-60">
+                    <li>→ Run an ATS scan for Backend Developer</li>
+                    <li>→ Apply to 5 matched roles</li>
+                  </ul>
+                </div>
+                <button
+                  class="w-full rounded-lg bg-gradient-to-r from-primary to-accent py-2.5 font-semibold text-white"
+                >
+                  Strengthen your Python projects →
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-center text-xs opacity-50">
+            Static preview · the real dashboard fetches live data from the NestJS API
+          </p>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const NAV = [
+        ['📊', 'Dashboard'], ['🔍', 'Resume Analyzer'], ['🛡️', 'ATS Scanner'],
+        ['🎯', 'Skill Gap'], ['💼', 'Job Match'], ['🎤', 'Mock Interview'],
+        ['🤖', 'Career Chatbot'], ['👁️', 'Recruiter Insights'], ['🗺️', 'Career Roadmap'],
+        ['📝', 'Resume Builder'], ['✉️', 'Cover Letters'], ['🧠', 'AI Memory'],
+        ['📈', 'Progress'], ['⚙️', 'Settings'], ['🛡️', 'Admin'],
+      ];
+      document.getElementById('nav').innerHTML = NAV.map(
+        ([icon, label], i) => `
+        <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm ${
+          i === 0 ? 'bg-primary/10 text-primary' : 'opacity-70 hover:opacity-100'
+        }"><span>${icon}</span><span class="font-medium">${label}</span></a>`,
+      ).join('');
+
+      const STATS = [
+        ['🔍', 'Resume Score', 84], ['🛡️', 'ATS Score', 81],
+        ['🎤', 'Interview Score', 76], ['🎯', 'Job Match Rate', 68],
+      ];
+      const color = (v) => (v >= 80 ? '#10b981' : v >= 60 ? '#f59e0b' : '#f43f5e');
+      document.getElementById('stats').innerHTML = STATS.map(
+        ([icon, label, val]) => `
+        <div class="glass rounded-2xl p-6">
+          <div class="flex items-center justify-between"><span class="text-xl">${icon}</span><span class="text-emerald-400">📈</span></div>
+          <p class="mt-4 text-3xl font-bold" style="color:${color(val)}">${val}%</p>
+          <p class="text-sm opacity-60">${label}</p>
+        </div>`,
+      ).join('');
+
+      new Chart(document.getElementById('chart'), {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+          datasets: [
+            { label: 'Resume', data: [58, 64, 71, 78, 84], borderColor: 'hsl(250 84% 60%)', backgroundColor: 'hsla(250,84%,60%,0.15)', fill: true, tension: 0.4 },
+            { label: 'ATS', data: [49, 57, 66, 74, 81], borderColor: 'hsl(199 89% 48%)', backgroundColor: 'hsla(199,89%,48%,0.15)', fill: true, tension: 0.4 },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#94a3b8' } } },
+          scales: {
+            y: { min: 0, max: 100, ticks: { color: '#64748b' }, grid: { color: 'rgba(148,163,184,0.1)' } },
+            x: { ticks: { color: '#64748b' }, grid: { display: false } },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

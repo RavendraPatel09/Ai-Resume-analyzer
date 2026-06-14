@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Career Mentor — Land your next role, faster</title>
+    <meta
+      name="description"
+      content="AI-powered resume analysis, ATS optimization, mock interviews, and a 24/7 career mentor that remembers you."
+    />
+    <!--
+      STATIC PREVIEW (runs with VS Code "Go Live" / Live Server).
+      This is a no-build visual demo of the design system. The full app
+      (auth, AI, uploads) is the Next.js + NestJS stack — run `pnpm dev`.
+    -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: 'hsl(250 84% 60%)',
+              accent: 'hsl(199 89% 48%)',
+            },
+            fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'Inter', system-ui, sans-serif;
+      }
+      .glass {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(16px);
+      }
+      html:not(.dark) .glass {
+        border-color: rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.65);
+      }
+      .gradient-text {
+        background: linear-gradient(90deg, hsl(250 84% 60%), hsl(199 89% 48%), hsl(250 84% 60%));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .aurora {
+        background:
+          radial-gradient(60% 50% at 20% 10%, hsla(250, 84%, 60%, 0.18), transparent),
+          radial-gradient(50% 50% at 90% 20%, hsla(199, 89%, 48%, 0.18), transparent),
+          radial-gradient(60% 60% at 50% 100%, hsla(250, 84%, 60%, 0.12), transparent);
+      }
+      .fade-up {
+        animation: fadeUp 0.6s ease-out both;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body class="aurora min-h-screen bg-slate-950 text-slate-100 dark:bg-slate-950 dark:text-slate-100">
+    <!-- light-mode base color -->
+    <script>
+      if (!document.documentElement.classList.contains('dark')) {
+        document.body.classList.remove('bg-slate-950', 'text-slate-100');
+        document.body.classList.add('bg-slate-50', 'text-slate-900');
+      }
+    </script>
+
+    <!-- Nav -->
+    <header class="sticky top-0 z-50">
+      <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+        <a href="index.html" class="flex items-center gap-2 font-bold">
+          <span class="text-xl">✨</span>
+          <span class="gradient-text text-lg">AI Career Mentor</span>
+        </a>
+        <nav class="flex items-center gap-2">
+          <button
+            id="themeBtn"
+            class="glass grid h-10 w-10 place-items-center rounded-lg text-lg"
+            aria-label="Toggle theme"
+          >
+            🌙
+          </button>
+          <a href="dashboard.html" class="rounded-lg px-4 py-2 text-sm font-medium hover:opacity-80"
+            >Demo dashboard</a
+          >
+          <a
+            href="dashboard.html"
+            class="rounded-lg bg-gradient-to-r from-primary to-accent px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30"
+            >Get started</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="mx-auto flex max-w-6xl flex-col items-center px-6 py-24 text-center">
+      <div class="glass fade-up mb-6 flex items-center gap-2 rounded-full px-4 py-1.5 text-sm">
+        ✨ Powered by Claude, GPT &amp; Gemini
+      </div>
+      <h1 class="fade-up max-w-4xl text-5xl font-extrabold leading-tight tracking-tight md:text-7xl">
+        Land your next role with an
+        <span class="gradient-text">AI mentor that remembers you</span>
+      </h1>
+      <p class="fade-up mt-6 max-w-2xl text-lg opacity-70">
+        Analyze your resume, beat the ATS, close skill gaps, practice interviews, and follow a
+        personalized roadmap — all guided by an AI that tracks every step of your journey.
+      </p>
+      <div class="fade-up mt-10 flex flex-col gap-3 sm:flex-row">
+        <a
+          href="dashboard.html"
+          class="rounded-lg bg-gradient-to-r from-primary to-accent px-8 py-3 font-semibold text-white shadow-lg shadow-primary/30"
+          >Start free →</a
+        >
+        <a href="dashboard.html" class="glass rounded-lg px-8 py-3 font-semibold">View demo dashboard</a>
+      </div>
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm opacity-70">
+        <span>✅ No credit card</span><span>✅ PDF / DOCX / TXT</span><span>✅ 24/7 mentor</span>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section
+      id="features"
+      class="mx-auto grid max-w-6xl gap-6 px-6 pb-28 sm:grid-cols-2 lg:grid-cols-3"
+    ></section>
+
+    <footer class="border-t border-white/10 py-8 text-center text-sm opacity-60">
+      © <span id="year"></span> AI Career Mentor · Static preview · Run <code>pnpm dev</code> for the
+      full app
+    </footer>
+
+    <script>
+      // Theme toggle
+      const themeBtn = document.getElementById('themeBtn');
+      function syncBg() {
+        const dark = document.documentElement.classList.contains('dark');
+        document.body.classList.toggle('bg-slate-950', dark);
+        document.body.classList.toggle('text-slate-100', dark);
+        document.body.classList.toggle('bg-slate-50', !dark);
+        document.body.classList.toggle('text-slate-900', !dark);
+        themeBtn.textContent = dark ? '🌙' : '☀️';
+      }
+      themeBtn.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        syncBg();
+      });
+      syncBg();
+
+      // Feature cards
+      const FEATURES = [
+        ['🔍', 'Resume Analyzer', 'Upload a PDF/DOCX and get a 0–100 score with weak-area fixes.'],
+        ['🛡️', 'ATS Scanner', 'Match against any job description and surface missing keywords.'],
+        ['🎤', 'AI Mock Interview', 'Voice + webcam interviews with real-time evaluation reports.'],
+        ['🤖', 'Career Chatbot', 'A mentor that remembers your goals, skills, and history.'],
+        ['🎯', 'Skill Gap', 'See exactly what to learn and how long it will take.'],
+        ['🗺️', 'Career Roadmap', 'Visual 3/6/12/24-month plans with milestones.'],
+      ];
+      document.getElementById('features').innerHTML = FEATURES.map(
+        ([icon, title, blurb]) => `
+        <div class="glass rounded-2xl p-6 transition-transform hover:-translate-y-1">
+          <div class="mb-4 text-3xl">${icon}</div>
+          <h3 class="text-lg font-semibold">${title}</h3>
+          <p class="mt-2 text-sm opacity-70">${blurb}</p>
+        </div>`,
+      ).join('');
+
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>
