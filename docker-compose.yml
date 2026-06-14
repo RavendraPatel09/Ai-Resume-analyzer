@@ -1,0 +1,72 @@
+# AI Career Mentor — local + production-like stack.
+# `docker compose up -d` brings up Postgres (with pgvector), Redis, API, and Web.
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: acm-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: acm
+      POSTGRES_PASSWORD: acm_password
+      POSTGRES_DB: ai_career_mentor
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U acm -d ai_career_mentor"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: acm-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: acm-api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: "postgresql://acm:acm_password@postgres:5432/ai_career_mentor?schema=public"
+      DIRECT_URL: "postgresql://acm:acm_password@postgres:5432/ai_career_mentor?schema=public"
+      REDIS_URL: "redis://redis:6379"
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: acm-web
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:4000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+  redisdata:

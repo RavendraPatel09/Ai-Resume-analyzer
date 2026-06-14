@@ -1,0 +1,39 @@
+{
+  "name": "ai-career-mentor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI Career Mentor — production-grade AI SaaS for resumes, ATS, interviews, and career guidance.",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "db:generate": "pnpm --filter @acm/database generate",
+    "db:migrate": "pnpm --filter @acm/database migrate",
+    "db:push": "pnpm --filter @acm/database push",
+    "db:seed": "pnpm --filter @acm/database seed",
+    "db:studio": "pnpm --filter @acm/database studio",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "prepare": "husky || true"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "turbo": "^2.1.3",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "typescript": "^5.6.3"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
+    "*.{json,md,css}": ["prettier --write"]
+  }
+}

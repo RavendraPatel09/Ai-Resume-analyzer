@@ -1,0 +1,31 @@
+name: Deploy
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  deploy-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy web to Vercel
+        run: echo "Configure VERCEL_TOKEN + 'vercel deploy --prod' here."
+        # - uses: amondnet/vercel-action@v25
+        #   with:
+        #     vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        #     vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        #     vercel-args: '--prod'
+
+  deploy-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & push API image to registry
+        run: echo "Configure ECR/GHCR login + docker push, then run prisma migrate deploy on release."
+        # 1) docker build -f apps/api/Dockerfile -t $REGISTRY/acm-api:${{ github.ref_name }} .
+        # 2) docker push $REGISTRY/acm-api:${{ github.ref_name }}
+        # 3) ssh / ECS update-service / k8s rollout
+        # 4) pnpm --filter @acm/database migrate:deploy
