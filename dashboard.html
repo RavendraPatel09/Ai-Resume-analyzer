@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c6cff'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M16 7l2.2 5.3L24 14l-5.3 2.2L16 21l-2.2-5.3L8 14z' fill='white'/%3E%3C/svg%3E" />
     <title>Dashboard · AI Career Mentor</title>
     <meta name="description" content="Your AI career command center — 10 tools, one memory." />
 
@@ -31,7 +32,6 @@
       rel="stylesheet"
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
     <script src="https://unpkg.com/lucide@latest" defer></script>
 
     <style>
@@ -61,11 +61,9 @@
       .orb-1 { width: 460px; height: 460px; top: -140px; left: -100px; background: radial-gradient(circle, hsla(250,84%,62%,.5), transparent 70%); }
       .orb-2 { width: 460px; height: 460px; top: 30%; right: -160px; background: radial-gradient(circle, hsla(190,95%,55%,.4), transparent 70%); }
 
-      /* stat + content cards: lift + glow on hover */
       .stat-card { transition: transform .25s cubic-bezier(.2,.8,.2,1), border-color .25s, box-shadow .25s; will-change: transform; }
       .stat-card:hover { transform: translateY(-5px); border-color: hsla(250,84%,62%,.45); box-shadow: 0 22px 50px -22px hsla(250,84%,62%,.6); }
 
-      /* sidebar links */
       .nav-link { position: relative; transition: color .2s, background .2s; }
       .nav-link::before {
         content: ''; position: absolute; left: 0; top: 50%; height: 0; width: 3px; border-radius: 9999px;
@@ -73,15 +71,48 @@
       }
       .nav-link:hover::before, .nav-link.active::before { height: 60%; }
 
-      .btn-primary { position: relative; overflow: hidden; background: linear-gradient(100deg, hsl(var(--primary)), hsl(var(--accent))); box-shadow: 0 12px 40px -12px hsla(250,84%,62%,.7); }
+      .btn-primary { position: relative; overflow: hidden; background: linear-gradient(100deg, hsl(var(--primary)), hsl(var(--accent))); box-shadow: 0 12px 40px -12px hsla(250,84%,62%,.7); transition: transform .15s ease; }
+      .btn-primary:hover { transform: translateY(-1px); }
+      .btn-primary:active { transform: translateY(0); }
       .btn-primary::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent, rgba(255,255,255,.3), transparent); transform: translateX(-120%); transition: transform .6s ease; }
       .btn-primary:hover::after { transform: translateX(120%); }
+      .btn-ghost { transition: background .2s, color .2s, border-color .2s; }
+      .btn-ghost:hover { background: rgba(255,255,255,.08); }
 
-      .reveal { opacity: 0; transform: translateY(20px); }
+      /* drag/drop zone */
+      .dropzone { transition: border-color .2s, background .2s; }
+      .dropzone.is-drag { border-color: hsl(var(--primary)); background: hsla(250,84%,62%,.08); }
+
+      /* toggle switch */
+      .switch { width: 44px; height: 24px; border-radius: 9999px; background: rgba(255,255,255,.12); position: relative; transition: background .2s; cursor: pointer; flex: none; }
+      .switch::after { content: ''; position: absolute; top: 3px; left: 3px; height: 18px; width: 18px; border-radius: 9999px; background: #fff; transition: transform .2s; }
+      .switch.on { background: linear-gradient(100deg, hsl(var(--primary)), hsl(var(--accent))); }
+      .switch.on::after { transform: translateX(20px); }
+
+      /* chat bubbles */
+      .bubble-user { background: linear-gradient(100deg, hsl(var(--primary)), hsl(var(--accent))); color: #fff; }
+      .typing span { display: inline-block; width: 6px; height: 6px; border-radius: 9999px; background: currentColor; opacity: .5; animation: blink 1.2s infinite; }
+      .typing span:nth-child(2) { animation-delay: .2s; } .typing span:nth-child(3) { animation-delay: .4s; }
+      @keyframes blink { 0%,100% { opacity: .25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-2px); } }
+
+      /* toast + modal */
+      #toasts { position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 100; display: flex; flex-direction: column; gap: .6rem; }
+      .toast { animation: toastIn .3s cubic-bezier(.2,.8,.2,1) both; }
+      .toast.out { animation: toastOut .3s ease forwards; }
+      @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+      @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
+      #modalRoot:not(.hidden) { animation: fadeIn .2s ease; }
+      .modal-card { animation: modalIn .25s cubic-bezier(.2,.8,.2,1) both; }
+      @keyframes fadeIn { from { opacity: 0; } } @keyframes modalIn { from { opacity: 0; transform: translateY(20px) scale(.98); } }
+
+      .view-enter { animation: viewIn .4s cubic-bezier(.2,.8,.2,1) both; }
+      @keyframes viewIn { from { opacity: 0; transform: translateY(12px); } }
+
       ::selection { background: hsla(250,84%,62%,.4); color: #fff; }
       ::-webkit-scrollbar { width: 10px; height: 10px; }
       ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 9999px; }
-      @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1 !important; transform: none !important; } }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.18); }
+      @media (prefers-reduced-motion: reduce) { .view-enter, .toast, .modal-card { animation: none !important; } }
     </style>
   </head>
 
@@ -92,7 +123,7 @@
 
     <div class="flex min-h-screen">
       <!-- ===================== Sidebar ===================== -->
-      <aside id="sidebar" class="glass fixed inset-y-0 left-0 z-40 hidden w-64 shrink-0 overflow-y-auto p-4 lg:sticky lg:top-0 lg:block lg:h-screen">
+      <aside id="sidebar" class="glass fixed inset-y-0 left-0 z-40 w-64 shrink-0 -translate-x-full overflow-y-auto p-4 transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0">
         <a href="index.html" class="mb-7 flex items-center gap-2.5 px-2 font-bold">
           <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white"><i data-lucide="sparkles" class="h-5 w-5"></i></span>
           <span class="font-display text-base">Career Mentor</span>
@@ -100,152 +131,764 @@
         <nav id="nav" class="flex flex-col gap-0.5"></nav>
 
         <div class="glass mt-6 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 p-4">
-          <p class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary"><i data-lucide="zap" class="h-3.5 w-3.5"></i> Pro</p>
+          <p class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary"><i data-lucide="zap" class="h-3.5 w-3.5"></i> Free plan</p>
           <p class="mt-1 text-sm text-slate-300">Unlock unlimited scans, interviews &amp; exports.</p>
-          <button class="btn-primary mt-3 w-full rounded-lg py-2 text-sm font-semibold text-white">Upgrade</button>
+          <button data-action="upgrade" class="btn-primary mt-3 w-full rounded-lg py-2 text-sm font-semibold text-white">Upgrade to Pro</button>
         </div>
       </aside>
 
-      <!-- mobile sidebar backdrop -->
+      <!-- mobile backdrop -->
       <div id="backdrop" class="fixed inset-0 z-30 hidden bg-black/60 backdrop-blur-sm lg:hidden"></div>
 
       <!-- ===================== Main ===================== -->
-      <div class="flex-1 px-4 pb-12 pt-4 sm:px-6">
+      <div class="flex min-h-screen flex-1 flex-col px-4 pb-12 pt-4 sm:px-6">
         <!-- Topbar -->
-        <header class="glass mb-6 flex h-14 items-center justify-between rounded-2xl px-3 sm:px-4">
-          <div class="flex items-center gap-2">
-            <button id="menuBtn" class="grid h-9 w-9 place-items-center rounded-lg text-slate-300 transition hover:bg-white/10 lg:hidden" aria-label="Open menu">
+        <header class="glass relative mb-6 flex h-14 items-center justify-between gap-3 rounded-2xl px-3 sm:px-4">
+          <div class="flex flex-1 items-center gap-2">
+            <button id="menuBtn" class="btn-ghost grid h-9 w-9 place-items-center rounded-lg text-slate-300 lg:hidden" aria-label="Open menu">
               <i data-lucide="menu" class="h-5 w-5"></i>
             </button>
-            <div class="hidden items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 text-sm text-slate-400 sm:flex">
-              <i data-lucide="search" class="h-4 w-4"></i> Search anything…
+            <!-- search -->
+            <div class="relative max-w-md flex-1">
+              <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"></i>
+              <input id="search" type="text" autocomplete="off" placeholder="Search tools…  (press /)"
+                class="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-9 pr-3 text-sm text-slate-200 outline-none transition placeholder:text-slate-500 focus:border-primary/60 focus:bg-white/10" />
+              <div id="searchResults" class="absolute left-0 right-0 top-12 z-30 hidden overflow-hidden rounded-xl border border-white/10 bg-ink/95 p-1.5 shadow-2xl backdrop-blur"></div>
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <button class="grid h-9 w-9 place-items-center rounded-lg text-slate-300 transition hover:bg-white/10" aria-label="Notifications"><i data-lucide="bell" class="h-5 w-5"></i></button>
-            <div class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-primary to-accent text-sm font-semibold text-white">R</div>
+            <!-- notifications -->
+            <div class="relative">
+              <button id="bellBtn" class="btn-ghost relative grid h-9 w-9 place-items-center rounded-lg text-slate-300" aria-label="Notifications">
+                <i data-lucide="bell" class="h-5 w-5"></i>
+                <span class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent ring-2 ring-ink"></span>
+              </button>
+              <div id="notifPanel" class="absolute right-0 top-12 z-30 hidden w-80 overflow-hidden rounded-xl border border-white/10 bg-ink/95 shadow-2xl backdrop-blur"></div>
+            </div>
+            <!-- avatar -->
+            <div class="relative">
+              <button id="avatarBtn" class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-primary to-accent text-sm font-semibold text-white" aria-label="Account">R</button>
+              <div id="avatarPanel" class="absolute right-0 top-12 z-30 hidden w-52 overflow-hidden rounded-xl border border-white/10 bg-ink/95 p-1.5 shadow-2xl backdrop-blur"></div>
+            </div>
           </div>
         </header>
 
-        <main class="mx-auto max-w-6xl space-y-6">
-          <div class="reveal">
-            <h1 class="font-display text-2xl font-bold sm:text-3xl">Welcome back, Ravendra 👋</h1>
-            <p class="text-slate-400">Here's your career momentum this week.</p>
-          </div>
+        <!-- Page header -->
+        <div id="pageHeader" class="mx-auto mb-6 w-full max-w-6xl"></div>
 
-          <!-- Stat cards -->
-          <div id="stats" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
+        <!-- Routed content -->
+        <main id="content" class="mx-auto w-full max-w-6xl flex-1"></main>
 
-          <div class="grid gap-6 lg:grid-cols-3">
-            <!-- Chart -->
-            <div class="glass stat-card reveal rounded-2xl p-6 lg:col-span-2">
-              <h3 class="font-display font-semibold">Score progression</h3>
-              <p class="text-sm text-slate-400">Resume vs ATS scores over time</p>
-              <div class="mt-4 h-64"><canvas id="chart"></canvas></div>
-            </div>
-
-            <!-- Next Action -->
-            <div class="glass stat-card reveal rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 p-6">
-              <div class="inline-flex items-center gap-1.5 text-sm text-primary"><i data-lucide="sparkles" class="h-4 w-4"></i> AI Next Action</div>
-              <h3 class="mt-1 font-display text-xl font-bold">Resume Score: 84%</h3>
-              <div class="mt-4 space-y-4 text-sm">
-                <div>
-                  <p class="text-xs uppercase tracking-wide text-slate-500">Next recommended step</p>
-                  <p class="mt-1 font-semibold">Strengthen your Python projects</p>
-                  <p class="text-slate-400">Your impact score is the lowest dimension — quantify outcomes in 2 bullets.</p>
-                </div>
-                <div>
-                  <p class="text-xs uppercase tracking-wide text-slate-500">After that</p>
-                  <ul class="mt-1 space-y-1 text-slate-400">
-                    <li class="flex items-center gap-2"><i data-lucide="arrow-right" class="h-3.5 w-3.5"></i> Run an ATS scan for Backend Developer</li>
-                    <li class="flex items-center gap-2"><i data-lucide="arrow-right" class="h-3.5 w-3.5"></i> Apply to 5 matched roles</li>
-                  </ul>
-                </div>
-                <button class="btn-primary w-full rounded-lg py-2.5 font-semibold text-white">Strengthen Python projects →</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Quick tools -->
-          <div class="reveal">
-            <h3 class="mb-4 font-display text-lg font-semibold">Jump back into a tool</h3>
-            <div id="quickTools" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
-          </div>
-
-          <p class="text-center text-xs text-slate-500">Static preview · the real dashboard fetches live data from the NestJS API</p>
-        </main>
+        <p class="mx-auto mt-8 w-full max-w-6xl text-center text-xs text-slate-500">Static preview · the real dashboard fetches live data from the NestJS API</p>
       </div>
     </div>
 
+    <!-- toast + modal roots -->
+    <div id="toasts"></div>
+    <div id="modalRoot" class="fixed inset-0 z-[90] hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm"></div>
+
     <script>
-      /* ---------- Navigation ---------- */
+      /* ============================================================
+         DATA
+      ============================================================ */
       const NAV = [
-        ['layout-dashboard', 'Dashboard'], ['file-search', 'Resume Analyzer'], ['shield-check', 'ATS Scanner'],
-        ['target', 'Skill Gap'], ['briefcase', 'Job Match'], ['mic', 'Mock Interview'],
-        ['bot', 'Career Chatbot'], ['eye', 'Recruiter Insights'], ['map', 'Career Roadmap'],
-        ['file-pen', 'Resume Builder'], ['mail', 'Cover Letters'], ['brain-circuit', 'AI Memory'],
-        ['trending-up', 'Progress'], ['settings', 'Settings'], ['shield', 'Admin'],
+        ['dashboard',          'layout-dashboard', 'Dashboard'],
+        ['resume-analyzer',    'file-search',      'Resume Analyzer'],
+        ['ats-scanner',        'shield-check',     'ATS Scanner'],
+        ['skill-gap',          'target',           'Skill Gap'],
+        ['job-match',          'briefcase',        'Job Match'],
+        ['mock-interview',     'mic',              'Mock Interview'],
+        ['chatbot',            'bot',              'Career Chatbot'],
+        ['recruiter-insights', 'eye',              'Recruiter Insights'],
+        ['roadmap',            'map',              'Career Roadmap'],
+        ['resume-builder',     'file-pen',         'Resume Builder'],
+        ['cover-letter',       'mail',             'Cover Letters'],
+        ['memory',             'brain-circuit',    'AI Memory'],
+        ['progress',           'trending-up',      'Progress'],
+        ['settings',           'settings',         'Settings'],
+        ['admin',              'shield',           'Admin'],
       ];
-      document.getElementById('nav').innerHTML = NAV.map(([icon, label], i) => `
-        <a href="#" class="nav-link flex items-center gap-3 rounded-lg px-3 py-2 text-sm ${
-          i === 0 ? 'active bg-white/5 font-semibold text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'
-        }"><i data-lucide="${icon}" class="h-[18px] w-[18px]"></i><span>${label}</span></a>`).join('');
+      const META = Object.fromEntries(NAV.map(([slug, icon, label]) => [slug, { icon, label }]));
 
-      /* ---------- Stat cards ---------- */
-      const STATS = [
-        ['file-search', 'Resume Score', 84, '+6'], ['shield-check', 'ATS Score', 81, '+4'],
-        ['mic', 'Interview Score', 76, '+9'], ['target', 'Job Match Rate', 68, '+3'],
-      ];
-      const color = (v) => (v >= 80 ? '#34d399' : v >= 60 ? '#fbbf24' : '#fb7185');
-      document.getElementById('stats').innerHTML = STATS.map(([icon, label, val, delta]) => `
-        <div class="glass stat-card reveal rounded-2xl p-5">
-          <div class="flex items-center justify-between">
-            <span class="grid h-10 w-10 place-items-center rounded-xl bg-white/5 text-primary"><i data-lucide="${icon}" class="h-5 w-5"></i></span>
-            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-400/10 px-2 py-0.5 text-xs font-medium text-emerald-400"><i data-lucide="trending-up" class="h-3 w-3"></i> ${delta}</span>
-          </div>
-          <p class="mt-4 font-display text-3xl font-bold" style="color:${color(val)}" data-count="${val}">0</p>
-          <p class="text-sm text-slate-400">${label}</p>
-        </div>`).join('');
+      /* ============================================================
+         HELPERS
+      ============================================================ */
+      const $ = (sel, root = document) => root.querySelector(sel);
+      const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+      const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const icons = () => { if (window.lucide) lucide.createIcons(); };
+      const scoreColor = (v) => (v >= 80 ? '#34d399' : v >= 60 ? '#fbbf24' : '#fb7185');
 
-      /* ---------- Quick tools ---------- */
-      const QUICK = [
-        ['mic', 'AI Mock Interview', 'Practice your next round'],
-        ['mail', 'Cover Letter', 'Generate one in seconds'],
-        ['map', 'Career Roadmap', 'See your 6-month plan'],
-      ];
-      document.getElementById('quickTools').innerHTML = QUICK.map(([icon, title, sub]) => `
-        <a href="#" class="glass stat-card reveal group flex items-center gap-4 rounded-2xl p-5">
-          <span class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary transition group-hover:from-primary group-hover:to-accent group-hover:text-white"><i data-lucide="${icon}" class="h-6 w-6"></i></span>
-          <div>
-            <p class="font-semibold text-white">${title}</p>
-            <p class="text-sm text-slate-400">${sub}</p>
-          </div>
-          <i data-lucide="arrow-up-right" class="ml-auto h-5 w-5 text-slate-500 transition group-hover:text-primary"></i>
-        </a>`).join('');
+      let chart = null; // single Chart.js instance, destroyed between views
 
-      /* ---------- Init ---------- */
-      window.addEventListener('load', () => {
-        if (window.lucide) lucide.createIcons();
-        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function toast(msg, type = 'info') {
+        const map = {
+          info:    ['info', 'text-sky-400'],
+          success: ['check-circle-2', 'text-emerald-400'],
+          warn:    ['alert-triangle', 'text-amber-400'],
+          error:   ['x-circle', 'text-rose-400'],
+        };
+        const [icon, color] = map[type] || map.info;
+        const el = document.createElement('div');
+        el.className = 'toast glass flex items-center gap-3 rounded-xl px-4 py-3 text-sm shadow-2xl';
+        el.innerHTML = `<i data-lucide="${icon}" class="h-5 w-5 ${color}"></i><span>${esc(msg)}</span>`;
+        $('#toasts').appendChild(el);
+        icons();
+        setTimeout(() => {
+          el.classList.add('out');
+          el.addEventListener('animationend', () => el.remove(), { once: true });
+        }, 3200);
+      }
 
-        // mobile sidebar
-        const sidebar = document.getElementById('sidebar');
-        const backdrop = document.getElementById('backdrop');
-        const open = () => { sidebar.classList.remove('hidden'); sidebar.classList.add('block', 'fixed', 'z-40'); backdrop.classList.remove('hidden'); };
-        const close = () => { if (window.innerWidth < 1024) { sidebar.classList.add('hidden'); backdrop.classList.add('hidden'); } };
-        document.getElementById('menuBtn').addEventListener('click', open);
-        backdrop.addEventListener('click', close);
+      function openModal(html) {
+        const root = $('#modalRoot');
+        root.innerHTML = `<div class="modal-card glass w-full max-w-md rounded-2xl p-6 shadow-2xl">${html}</div>`;
+        root.classList.remove('hidden');
+        root.classList.add('flex');
+        icons();
+      }
+      function closeModal() {
+        const root = $('#modalRoot');
+        root.classList.add('hidden');
+        root.classList.remove('flex');
+        root.innerHTML = '';
+      }
+      $('#modalRoot').addEventListener('click', (e) => { if (e.target.id === 'modalRoot') closeModal(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeAllPanels(); } });
 
-        // chart
-        new Chart(document.getElementById('chart'), {
-          type: 'line',
-          data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-            datasets: [
-              { label: 'Resume', data: [58, 64, 71, 78, 84], borderColor: 'hsl(250 84% 62%)', backgroundColor: 'hsla(250,84%,62%,0.15)', fill: true, tension: 0.4, pointBackgroundColor: 'hsl(250 84% 62%)' },
-              { label: 'ATS', data: [49, 57, 66, 74, 81], borderColor: 'hsl(190 95% 55%)', backgroundColor: 'hsla(190,95%,55%,0.15)', fill: true, tension: 0.4, pointBackgroundColor: 'hsl(190 95% 55%)' },
-            ],
+      /* animate a progress bar then resolve */
+      function runProgress(barEl, labelEl, steps, done) {
+        let i = 0;
+        const tick = () => {
+          if (i >= steps.length) { done && done(); return; }
+          const [pct, label] = steps[i++];
+          if (barEl) barEl.style.width = pct + '%';
+          if (labelEl) labelEl.textContent = label;
+          setTimeout(tick, 450);
+        };
+        tick();
+      }
+
+      /* ============================================================
+         VIEWS  — each: { render() -> html, init?(root) }
+      ============================================================ */
+      const VIEWS = {};
+
+      /* ---------- Dashboard ---------- */
+      VIEWS['dashboard'] = {
+        subtitle: "Here's your career momentum this week.",
+        render() {
+          const stats = [
+            ['file-search', 'Resume Score', 84, '+6'], ['shield-check', 'ATS Score', 81, '+4'],
+            ['mic', 'Interview Score', 76, '+9'], ['target', 'Job Match Rate', 68, '+3'],
+          ];
+          const quick = [
+            ['mic', 'AI Mock Interview', 'Practice your next round', 'mock-interview'],
+            ['mail', 'Cover Letter', 'Generate one in seconds', 'cover-letter'],
+            ['map', 'Career Roadmap', 'See your 6-month plan', 'roadmap'],
+          ];
+          return `
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              ${stats.map(([icon, label, val, delta]) => `
+                <div class="glass stat-card rounded-2xl p-5">
+                  <div class="flex items-center justify-between">
+                    <span class="grid h-10 w-10 place-items-center rounded-xl bg-white/5 text-primary"><i data-lucide="${icon}" class="h-5 w-5"></i></span>
+                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-400/10 px-2 py-0.5 text-xs font-medium text-emerald-400"><i data-lucide="trending-up" class="h-3 w-3"></i> ${delta}</span>
+                  </div>
+                  <p class="mt-4 font-display text-3xl font-bold" style="color:${scoreColor(val)}" data-count="${val}">0</p>
+                  <p class="text-sm text-slate-400">${label}</p>
+                </div>`).join('')}
+            </div>
+
+            <div class="mt-6 grid gap-6 lg:grid-cols-3">
+              <div class="glass rounded-2xl p-6 lg:col-span-2">
+                <h3 class="font-display font-semibold">Score progression</h3>
+                <p class="text-sm text-slate-400">Resume vs ATS scores over time</p>
+                <div class="mt-4 h-64"><canvas id="chart"></canvas></div>
+              </div>
+              <div class="glass rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 p-6">
+                <div class="inline-flex items-center gap-1.5 text-sm text-primary"><i data-lucide="sparkles" class="h-4 w-4"></i> AI Next Action</div>
+                <h3 class="mt-1 font-display text-xl font-bold">Resume Score: 84%</h3>
+                <div class="mt-4 space-y-4 text-sm">
+                  <div>
+                    <p class="text-xs uppercase tracking-wide text-slate-500">Next recommended step</p>
+                    <p class="mt-1 font-semibold">Strengthen your Python projects</p>
+                    <p class="text-slate-400">Your impact score is the lowest dimension — quantify outcomes in 2 bullets.</p>
+                  </div>
+                  <button data-go="resume-analyzer" class="btn-primary w-full rounded-lg py-2.5 font-semibold text-white">Strengthen Python projects →</button>
+                </div>
+              </div>
+            </div>
+
+            <h3 class="mb-4 mt-8 font-display text-lg font-semibold">Jump back into a tool</h3>
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              ${quick.map(([icon, title, sub, slug]) => `
+                <button data-go="${slug}" class="glass stat-card group flex items-center gap-4 rounded-2xl p-5 text-left">
+                  <span class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary transition group-hover:from-primary group-hover:to-accent group-hover:text-white"><i data-lucide="${icon}" class="h-6 w-6"></i></span>
+                  <div>
+                    <p class="font-semibold text-white">${title}</p>
+                    <p class="text-sm text-slate-400">${sub}</p>
+                  </div>
+                  <i data-lucide="arrow-up-right" class="ml-auto h-5 w-5 text-slate-500 transition group-hover:text-primary"></i>
+                </button>`).join('')}
+            </div>`;
+        },
+        init() {
+          countUp();
+          drawChart();
+        },
+      };
+
+      /* ---------- Reusable analyze flow (resume / ats / skill-gap) ---------- */
+      function analyzeView({ slug, inputHTML, steps, resultHTML, cta }) {
+        return {
+          render() {
+            return `
+              <div class="grid gap-6 lg:grid-cols-5">
+                <div class="glass rounded-2xl p-6 lg:col-span-3">${inputHTML}
+                  <button data-run class="btn-primary mt-5 w-full rounded-lg py-3 font-semibold text-white">${cta}</button>
+                  <div data-progress class="mt-5 hidden">
+                    <p data-plabel class="mb-2 text-sm text-slate-400">Analyzing…</p>
+                    <div class="h-2 overflow-hidden rounded-full bg-white/10"><div data-pbar class="h-full w-0 rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-300"></div></div>
+                  </div>
+                </div>
+                <div data-result class="glass hidden rounded-2xl p-6 lg:col-span-2"></div>
+                <div data-placeholder class="glass flex flex-col items-center justify-center rounded-2xl p-6 text-center text-slate-500 lg:col-span-2">
+                  <i data-lucide="sparkles" class="mb-3 h-8 w-8 text-primary/60"></i>
+                  <p class="text-sm">Your AI report will appear here.</p>
+                </div>
+              </div>`;
           },
+          init(root) {
+            $('[data-run]', root).addEventListener('click', () => {
+              const prog = $('[data-progress]', root);
+              const placeholder = $('[data-placeholder]', root);
+              const result = $('[data-result]', root);
+              prog.classList.remove('hidden');
+              $('[data-pbar]', root).style.width = '0%';
+              runProgress($('[data-pbar]', root), $('[data-plabel]', root), steps, () => {
+                placeholder.classList.add('hidden');
+                result.classList.remove('hidden');
+                result.classList.add('view-enter');
+                result.innerHTML = resultHTML();
+                icons();
+                toast('Analysis complete — saved to your AI memory', 'success');
+              });
+            });
+          },
+        };
+      }
+
+      VIEWS['resume-analyzer'] = analyzeView({
+        slug: 'resume-analyzer',
+        cta: 'Analyze my resume',
+        inputHTML: `
+          <h3 class="font-display text-lg font-semibold">Upload your resume</h3>
+          <p class="mt-1 text-sm text-slate-400">PDF, DOCX or TXT · up to 5 MB</p>
+          <label id="dropzone" class="dropzone mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 p-10 text-center">
+            <i data-lucide="upload-cloud" class="mb-3 h-9 w-9 text-primary"></i>
+            <p class="text-sm font-medium text-slate-200"><span data-fname>Drop your file here</span> or <span class="text-primary">browse</span></p>
+            <p class="mt-1 text-xs text-slate-500">We never share your data</p>
+            <input type="file" class="hidden" accept=".pdf,.docx,.txt" />
+          </label>`,
+        steps: [[20, 'Extracting text…'], [50, 'Parsing structure…'], [78, 'Scoring with AI…'], [100, 'Building report…']],
+        resultHTML: () => {
+          const dims = [['Impact', 64], ['Clarity', 88], ['Skills match', 82], ['Formatting', 91], ['Keywords', 79]];
+          return `
+            <div class="flex items-center justify-between"><h3 class="font-display text-lg font-semibold">Resume score</h3>
+              <span class="rounded-full bg-emerald-400/10 px-2.5 py-1 text-xs font-semibold text-emerald-400">Strong</span></div>
+            <p class="mt-3 font-display text-5xl font-bold" style="color:${scoreColor(84)}">84<span class="text-2xl text-slate-500">/100</span></p>
+            <div class="mt-5 space-y-3">
+              ${dims.map(([l, v]) => `
+                <div><div class="flex justify-between text-sm"><span class="text-slate-300">${l}</span><span class="text-slate-400">${v}</span></div>
+                <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10"><div class="h-full rounded-full" style="width:${v}%;background:${scoreColor(v)}"></div></div></div>`).join('')}
+            </div>
+            <div class="mt-5 rounded-xl bg-primary/10 p-3 text-sm"><span class="font-semibold text-primary">Top fix:</span> quantify 2 Python project bullets to lift your impact score.</div>
+            <button data-go="ats-scanner" class="btn-ghost mt-4 w-full rounded-lg border border-white/10 py-2.5 text-sm font-semibold">Run an ATS scan next →</button>`;
+        },
+      });
+
+      VIEWS['ats-scanner'] = analyzeView({
+        slug: 'ats-scanner',
+        cta: 'Scan against this job',
+        inputHTML: `
+          <h3 class="font-display text-lg font-semibold">ATS keyword scan</h3>
+          <p class="mt-1 text-sm text-slate-400">Paste a job description to match your resume against it.</p>
+          <textarea rows="8" placeholder="Paste the full job description here…" class="mt-4 w-full resize-none rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-slate-200 outline-none transition placeholder:text-slate-500 focus:border-primary/60 focus:bg-white/10">We are looking for a Backend Engineer with Python, FastAPI, PostgreSQL, Docker, AWS and CI/CD experience…</textarea>`,
+        steps: [[30, 'Tokenizing job description…'], [60, 'Matching keywords…'], [100, 'Scoring ATS fit…']],
+        resultHTML: () => {
+          const matched = ['Python', 'PostgreSQL', 'Docker', 'CI/CD'];
+          const missing = ['FastAPI', 'AWS'];
+          return `
+            <h3 class="font-display text-lg font-semibold">ATS match</h3>
+            <p class="mt-3 font-display text-5xl font-bold" style="color:${scoreColor(81)}">81<span class="text-2xl text-slate-500">%</span></p>
+            <p class="mt-1 text-sm text-slate-400">Good — but 2 keywords are missing.</p>
+            <p class="mt-5 mb-2 text-xs font-semibold uppercase tracking-wide text-emerald-400">Matched</p>
+            <div class="flex flex-wrap gap-2">${matched.map((k) => `<span class="rounded-full bg-emerald-400/10 px-3 py-1 text-xs text-emerald-300">${k}</span>`).join('')}</div>
+            <p class="mt-4 mb-2 text-xs font-semibold uppercase tracking-wide text-rose-400">Missing — add these</p>
+            <div class="flex flex-wrap gap-2">${missing.map((k) => `<span class="rounded-full bg-rose-400/10 px-3 py-1 text-xs text-rose-300">${k}</span>`).join('')}</div>`;
+        },
+      });
+
+      VIEWS['skill-gap'] = analyzeView({
+        slug: 'skill-gap',
+        cta: 'Analyze my skill gaps',
+        inputHTML: `
+          <h3 class="font-display text-lg font-semibold">Skill gap analysis</h3>
+          <p class="mt-1 text-sm text-slate-400">Pick a target role — we compare it to your profile.</p>
+          <label class="mt-4 block text-xs font-medium uppercase tracking-wide text-slate-500">Target role</label>
+          <select class="mt-2 w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-slate-200 outline-none focus:border-primary/60">
+            <option>Senior Backend Engineer</option><option>Full-Stack Engineer</option><option>DevOps Engineer</option><option>Data Engineer</option>
+          </select>`,
+        steps: [[35, 'Loading role profile…'], [70, 'Comparing to your skills…'], [100, 'Estimating learning time…']],
+        resultHTML: () => {
+          const gaps = [['System design', 40, '3 wks'], ['Kubernetes', 25, '4 wks'], ['AWS', 55, '2 wks']];
+          return `
+            <h3 class="font-display text-lg font-semibold">Your gaps</h3>
+            <p class="mt-1 text-sm text-slate-400">Close these to be role-ready in ~9 weeks.</p>
+            <div class="mt-5 space-y-4">
+              ${gaps.map(([l, v, t]) => `
+                <div><div class="flex justify-between text-sm"><span class="text-slate-300">${l}</span><span class="text-slate-500">${t}</span></div>
+                <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10"><div class="h-full rounded-full bg-gradient-to-r from-primary to-accent" style="width:${v}%"></div></div></div>`).join('')}
+            </div>
+            <button data-go="roadmap" class="btn-ghost mt-5 w-full rounded-lg border border-white/10 py-2.5 text-sm font-semibold">Turn this into a roadmap →</button>`;
+        },
+      });
+
+      /* ---------- Job match ---------- */
+      VIEWS['job-match'] = {
+        render() {
+          const jobs = [
+            ['Senior Backend Engineer', 'Stripe · Remote', 92, '$160k–195k'],
+            ['Platform Engineer', 'Vercel · Remote', 86, '$150k–180k'],
+            ['Backend Engineer', 'Linear · Hybrid', 81, '$140k–170k'],
+            ['API Engineer', 'Notion · SF', 74, '$155k–185k'],
+          ];
+          return `<div class="space-y-4">
+            ${jobs.map(([title, co, m, pay]) => `
+              <div class="glass stat-card flex flex-col gap-4 rounded-2xl p-5 sm:flex-row sm:items-center">
+                <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/5 text-primary"><i data-lucide="briefcase" class="h-6 w-6"></i></div>
+                <div class="flex-1">
+                  <p class="font-semibold text-white">${title}</p>
+                  <p class="text-sm text-slate-400">${co} · ${pay}</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-display text-2xl font-bold" style="color:${scoreColor(m)}">${m}%</p>
+                  <p class="text-xs text-slate-500">match</p>
+                </div>
+                <button data-action="apply" data-job="${esc(title)}" class="btn-primary rounded-lg px-5 py-2.5 text-sm font-semibold text-white">Apply</button>
+              </div>`).join('')}
+          </div>`;
+        },
+        init(root) {
+          $$('[data-action="apply"]', root).forEach((b) =>
+            b.addEventListener('click', () => toast(`Application drafted for “${b.dataset.job}”`, 'success')));
+        },
+      };
+
+      /* ---------- Mock interview ---------- */
+      VIEWS['mock-interview'] = {
+        render() {
+          return `<div class="glass mx-auto max-w-2xl rounded-2xl p-6 sm:p-8">
+            <div class="flex items-center gap-3">
+              <span class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white"><i data-lucide="mic" class="h-5 w-5"></i></span>
+              <div><h3 class="font-display text-lg font-semibold">AI Mock Interview</h3><p class="text-sm text-slate-400">Backend Engineer · Behavioral round</p></div>
+              <span data-qcount class="ml-auto text-sm text-slate-500">1 / 5</span>
+            </div>
+            <div data-qbox class="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
+              <p class="text-xs font-semibold uppercase tracking-wide text-primary">Question</p>
+              <p data-question class="mt-2 text-lg font-medium text-white">Tell me about a time you improved the performance of a system.</p>
+            </div>
+            <textarea data-answer rows="5" placeholder="Type your answer (or imagine speaking it)…" class="mt-4 w-full resize-none rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-slate-200 outline-none focus:border-primary/60 focus:bg-white/10"></textarea>
+            <div class="mt-4 flex gap-3">
+              <button data-next class="btn-primary flex-1 rounded-lg py-3 font-semibold text-white">Submit &amp; next →</button>
+              <button data-finish class="btn-ghost rounded-lg border border-white/10 px-5 py-3 text-sm font-semibold">End</button>
+            </div>
+            <div data-report class="mt-6 hidden"></div>
+          </div>`;
+        },
+        init(root) {
+          const QS = [
+            'Tell me about a time you improved the performance of a system.',
+            'Describe a conflict with a teammate and how you resolved it.',
+            'Walk me through a project you’re most proud of.',
+            'How do you handle tight deadlines with shifting requirements?',
+            'Tell me about a production incident you debugged.',
+          ];
+          let i = 0;
+          const qEl = $('[data-question]', root), cEl = $('[data-qcount]', root), ans = $('[data-answer]', root);
+          const finish = () => {
+            $('[data-qbox]', root).classList.add('hidden');
+            ans.classList.add('hidden');
+            $('[data-next]', root).classList.add('hidden');
+            $('[data-finish]', root).classList.add('hidden');
+            const rep = $('[data-report]', root);
+            rep.classList.remove('hidden');
+            rep.classList.add('view-enter');
+            rep.innerHTML = `
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-5 text-center">
+                <p class="text-sm text-slate-400">Interview score</p>
+                <p class="font-display text-5xl font-bold" style="color:${scoreColor(78)}">78<span class="text-2xl text-slate-500">/100</span></p>
+                <div class="mt-4 grid grid-cols-3 gap-3 text-sm">
+                  <div><p class="font-semibold text-emerald-400">Structure</p><p class="text-slate-400">Strong</p></div>
+                  <div><p class="font-semibold text-amber-400">Specificity</p><p class="text-slate-400">Add metrics</p></div>
+                  <div><p class="font-semibold text-emerald-400">Clarity</p><p class="text-slate-400">Clear</p></div>
+                </div>
+                <button data-go="dashboard" class="btn-primary mt-5 rounded-lg px-6 py-2.5 text-sm font-semibold text-white">Back to dashboard</button>
+              </div>`;
+            icons();
+            toast('Interview evaluated — report saved to memory', 'success');
+          };
+          $('[data-next]', root).addEventListener('click', () => {
+            i++;
+            ans.value = '';
+            if (i >= QS.length) return finish();
+            qEl.textContent = QS[i];
+            cEl.textContent = `${i + 1} / ${QS.length}`;
+          });
+          $('[data-finish]', root).addEventListener('click', finish);
+        },
+      };
+
+      /* ---------- Career chatbot ---------- */
+      VIEWS['chatbot'] = {
+        render() {
+          return `<div class="glass mx-auto flex h-[68vh] max-w-2xl flex-col rounded-2xl">
+            <div class="flex items-center gap-3 border-b border-white/10 p-4">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white"><i data-lucide="bot" class="h-5 w-5"></i></span>
+              <div><p class="font-semibold">Career Mentor</p><p class="text-xs text-emerald-400">● Online · remembers your journey</p></div>
+            </div>
+            <div data-log class="flex-1 space-y-4 overflow-y-auto p-4"></div>
+            <form data-form class="flex items-center gap-2 border-t border-white/10 p-3">
+              <input data-input autocomplete="off" placeholder="Ask anything about your career…" class="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-slate-200 outline-none focus:border-primary/60 focus:bg-white/10" />
+              <button class="btn-primary grid h-10 w-10 shrink-0 place-items-center rounded-xl text-white" aria-label="Send"><i data-lucide="send" class="h-4 w-4"></i></button>
+            </form>
+          </div>`;
+        },
+        init(root) {
+          const log = $('[data-log]', root), form = $('[data-form]', root), input = $('[data-input]', root);
+          const add = (who, text) => {
+            const wrap = document.createElement('div');
+            wrap.className = 'flex ' + (who === 'user' ? 'justify-end' : 'justify-start');
+            wrap.innerHTML = `<div class="${who === 'user' ? 'bubble-user' : 'glass'} max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed">${esc(text)}</div>`;
+            log.appendChild(wrap); log.scrollTop = log.scrollHeight;
+            return wrap;
+          };
+          const reply = (msg) => {
+            const m = msg.toLowerCase();
+            if (m.includes('resume')) return 'Your resume scores 84/100. The weakest area is impact — quantify 2 Python project bullets and you’ll likely cross 90. Want me to open the Resume Analyzer?';
+            if (m.includes('interview')) return 'Last mock interview you scored 78. Focus on adding metrics to your stories. Shall I start a fresh behavioral round?';
+            if (m.includes('salary') || m.includes('pay')) return 'For Senior Backend Engineer (remote, US) your matched roles pay $150k–195k. Given your profile, target the upper-mid of that band.';
+            if (m.includes('skill') || m.includes('learn')) return 'Your top gaps for Senior Backend are System Design, Kubernetes and AWS — about 9 weeks total. I can build a roadmap for that.';
+            if (m.includes('hello') || m.includes('hi')) return 'Hey Ravendra 👋 I remember you’re targeting Senior Backend Engineer by March 2026. What should we work on today?';
+            return 'Good question. Based on your goal of Senior Backend Engineer, I’d prioritize quantifying your resume impact and practicing system-design interviews. Want a step-by-step plan?';
+          };
+          const send = (text) => {
+            add('user', text);
+            const typing = document.createElement('div');
+            typing.className = 'flex justify-start';
+            typing.innerHTML = `<div class="glass typing flex gap-1 rounded-2xl px-4 py-3"><span></span><span></span><span></span></div>`;
+            log.appendChild(typing); log.scrollTop = log.scrollHeight;
+            setTimeout(() => { typing.remove(); add('bot', reply(text)); }, 900);
+          };
+          add('bot', 'Hey Ravendra 👋 I’m your career mentor and I remember your whole journey. Ask me about your resume, interviews, salary or next steps.');
+          icons();
+          form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            send(text);
+          });
+        },
+      };
+
+      /* ---------- Recruiter insights ---------- */
+      VIEWS['recruiter-insights'] = {
+        render() {
+          const strengths = ['Clear progression from junior → mid', 'Strong open-source contributions', 'Quantified impact in 3 roles'];
+          const flags = ['9-month gap in 2023 (explain it)', 'No system-design signal', 'Skills section keyword-light'];
+          const qs = ['Walk me through your hardest scaling problem.', 'Why the gap in 2023?', 'How do you design for failure?'];
+          return `<div class="grid gap-6 lg:grid-cols-2">
+            <div class="glass rounded-2xl p-6">
+              <h3 class="inline-flex items-center gap-2 font-display text-lg font-semibold"><i data-lucide="thumbs-up" class="h-5 w-5 text-emerald-400"></i> What recruiters love</h3>
+              <ul class="mt-4 space-y-3 text-sm">${strengths.map((s) => `<li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-emerald-400"></i>${s}</li>`).join('')}</ul>
+            </div>
+            <div class="glass rounded-2xl p-6">
+              <h3 class="inline-flex items-center gap-2 font-display text-lg font-semibold"><i data-lucide="alert-triangle" class="h-5 w-5 text-amber-400"></i> Red flags to fix</h3>
+              <ul class="mt-4 space-y-3 text-sm">${flags.map((s) => `<li class="flex items-start gap-2"><i data-lucide="x" class="mt-0.5 h-4 w-4 shrink-0 text-rose-400"></i>${s}</li>`).join('')}</ul>
+            </div>
+            <div class="glass rounded-2xl p-6 lg:col-span-2">
+              <h3 class="inline-flex items-center gap-2 font-display text-lg font-semibold"><i data-lucide="help-circle" class="h-5 w-5 text-primary"></i> They’ll likely ask</h3>
+              <div class="mt-4 grid gap-3 sm:grid-cols-3">${qs.map((q) => `<div class="rounded-xl border border-white/10 bg-white/5 p-4 text-sm">${q}</div>`).join('')}</div>
+            </div>
+          </div>`;
+        },
+      };
+
+      /* ---------- Roadmap ---------- */
+      VIEWS['roadmap'] = {
+        render() {
+          const ms = [
+            ['Month 1', 'Quantify resume impact + ATS pass', true],
+            ['Month 2', 'System design fundamentals', false],
+            ['Month 3', 'Kubernetes + AWS hands-on', false],
+            ['Month 4', 'Mock interviews (5 rounds)', false],
+            ['Month 5', 'Apply to 20 matched roles', false],
+            ['Month 6', 'Negotiate & sign offer 🎉', false],
+          ];
+          return `<div class="glass rounded-2xl p-6 sm:p-8">
+            <div class="mb-6 flex items-center justify-between">
+              <div><h3 class="font-display text-lg font-semibold">6-month roadmap → Senior Backend Engineer</h3><p class="text-sm text-slate-400">Tap a milestone to mark it done.</p></div>
+              <span data-pct class="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">17%</span>
+            </div>
+            <div class="relative space-y-2 pl-6">
+              <div class="absolute bottom-2 left-2 top-2 w-px bg-white/10"></div>
+              ${ms.map(([m, t, done], i) => `
+                <button data-ms="${i}" class="group relative flex w-full items-center gap-4 rounded-xl p-3 text-left transition hover:bg-white/5">
+                  <span data-dot class="absolute -left-[1.35rem] grid h-5 w-5 place-items-center rounded-full border ${done ? 'border-primary bg-primary text-white' : 'border-white/20 bg-ink text-transparent'}"><i data-lucide="check" class="h-3 w-3"></i></span>
+                  <div><p class="text-xs uppercase tracking-wide text-slate-500">${m}</p><p data-title class="font-medium ${done ? 'text-slate-500 line-through' : 'text-white'}">${t}</p></div>
+                </button>`).join('')}
+            </div>
+          </div>`;
+        },
+        init(root) {
+          const total = $$('[data-ms]', root).length;
+          const recount = () => {
+            const done = $$('[data-ms]', root).filter((b) => b.dataset.done === '1' || $('[data-dot]', b).classList.contains('bg-primary')).length;
+            $('[data-pct]', root).textContent = Math.round((done / total) * 100) + '%';
+          };
+          $$('[data-ms]', root).forEach((b) => {
+            b.addEventListener('click', () => {
+              const dot = $('[data-dot]', b), title = $('[data-title]', b);
+              const on = dot.classList.toggle('bg-primary');
+              dot.classList.toggle('border-primary', on);
+              dot.classList.toggle('text-white', on);
+              dot.classList.toggle('border-white/20', !on);
+              dot.classList.toggle('text-transparent', !on);
+              title.classList.toggle('line-through', on);
+              title.classList.toggle('text-slate-500', on);
+              title.classList.toggle('text-white', !on);
+              recount();
+            });
+          });
+        },
+      };
+
+      /* ---------- Resume builder (live preview) ---------- */
+      VIEWS['resume-builder'] = {
+        render() {
+          return `<div class="grid gap-6 lg:grid-cols-2">
+            <div class="glass rounded-2xl p-6">
+              <h3 class="font-display text-lg font-semibold">Resume builder</h3>
+              <p class="mt-1 text-sm text-slate-400">Type — the preview updates live.</p>
+              <div class="mt-4 space-y-3">
+                <input data-f="name" value="Ravendra Patel" placeholder="Full name" class="w-full rounded-lg border border-white/10 bg-white/5 p-2.5 text-sm outline-none focus:border-primary/60" />
+                <input data-f="title" value="Backend Engineer" placeholder="Headline" class="w-full rounded-lg border border-white/10 bg-white/5 p-2.5 text-sm outline-none focus:border-primary/60" />
+                <input data-f="email" value="kurmivivek295@gmail.com" placeholder="Email" class="w-full rounded-lg border border-white/10 bg-white/5 p-2.5 text-sm outline-none focus:border-primary/60" />
+                <textarea data-f="summary" rows="4" placeholder="Professional summary" class="w-full resize-none rounded-lg border border-white/10 bg-white/5 p-2.5 text-sm outline-none focus:border-primary/60">Backend engineer with 4+ years building scalable APIs in Python and Node. Cut p95 latency 40% at scale.</textarea>
+              </div>
+              <button data-action="export" class="btn-primary mt-5 w-full rounded-lg py-3 font-semibold text-white"><i data-lucide="download" class="mr-1.5 inline h-4 w-4"></i> Export to PDF</button>
+            </div>
+            <div class="glass rounded-2xl bg-white p-8 text-slate-800 shadow-xl">
+              <h2 data-p="name" class="font-display text-2xl font-bold">Ravendra Patel</h2>
+              <p data-p="title" class="font-medium text-indigo-600">Backend Engineer</p>
+              <p data-p="email" class="text-sm text-slate-500">kurmivivek295@gmail.com</p>
+              <hr class="my-4 border-slate-200" />
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Summary</h3>
+              <p data-p="summary" class="mt-1 text-sm leading-relaxed">Backend engineer with 4+ years building scalable APIs in Python and Node. Cut p95 latency 40% at scale.</p>
+              <h3 class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">Experience</h3>
+              <p class="mt-1 text-sm font-semibold">Backend Engineer · Acme</p>
+              <p class="text-xs text-slate-500">2022 — Present</p>
+            </div>
+          </div>`;
+        },
+        init(root) {
+          $$('[data-f]', root).forEach((inp) => {
+            inp.addEventListener('input', () => {
+              const t = $(`[data-p="${inp.dataset.f}"]`, root);
+              if (t) t.textContent = inp.value || t.textContent;
+            });
+          });
+          $('[data-action="export"]', root).addEventListener('click', () => toast('PDF export queued — check your downloads', 'success'));
+        },
+      };
+
+      /* ---------- Cover letter generator ---------- */
+      VIEWS['cover-letter'] = {
+        render() {
+          return `<div class="grid gap-6 lg:grid-cols-2">
+            <div class="glass rounded-2xl p-6">
+              <h3 class="font-display text-lg font-semibold">Cover letter generator</h3>
+              <p class="mt-1 text-sm text-slate-400">Tailored to the role — sounds like you, not a template.</p>
+              <div class="mt-4 space-y-3">
+                <input data-f="company" value="Stripe" placeholder="Company" class="w-full rounded-lg border border-white/10 bg-white/5 p-2.5 text-sm outline-none focus:border-primary/60" />
+                <input data-f="role" value="Senior Backend Engineer" placeholder="Role" class="w-full rounded-lg border border-white/10 bg-white/5 p-2.5 text-sm outline-none focus:border-primary/60" />
+                <select data-f="tone" class="w-full rounded-lg border border-white/10 bg-white/5 p-2.5 text-sm outline-none focus:border-primary/60"><option>Confident</option><option>Warm</option><option>Formal</option></select>
+              </div>
+              <button data-gen class="btn-primary mt-5 w-full rounded-lg py-3 font-semibold text-white"><i data-lucide="sparkles" class="mr-1.5 inline h-4 w-4"></i> Generate cover letter</button>
+            </div>
+            <div class="glass rounded-2xl p-6">
+              <div class="flex items-center justify-between">
+                <h3 class="font-display text-lg font-semibold">Preview</h3>
+                <button data-copy class="btn-ghost rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold"><i data-lucide="copy" class="mr-1 inline h-3.5 w-3.5"></i> Copy</button>
+              </div>
+              <div data-out class="mt-4 whitespace-pre-line text-sm leading-relaxed text-slate-300">Fill in the role and hit generate to see your tailored letter here.</div>
+            </div>
+          </div>`;
+        },
+        init(root) {
+          const out = $('[data-out]', root);
+          $('[data-gen]', root).addEventListener('click', () => {
+            const co = $('[data-f="company"]', root).value || 'your company';
+            const role = $('[data-f="role"]', root).value || 'this role';
+            out.classList.add('view-enter');
+            out.textContent = `Dear ${co} Hiring Team,
+
+I'm excited to apply for the ${role} position. Over the past four years I've built scalable backend systems in Python and Node, cutting p95 latency by 40% and shipping APIs used by millions.
+
+What draws me to ${co} is your focus on reliable, developer-first infrastructure — exactly where I do my best work. I'd love to bring my experience in distributed systems and CI/CD to your team.
+
+Thank you for your consideration.
+
+Warm regards,
+Ravendra Patel`;
+            setTimeout(() => out.classList.remove('view-enter'), 400);
+            toast('Cover letter generated', 'success');
+          });
+          $('[data-copy]', root).addEventListener('click', async () => {
+            try { await navigator.clipboard.writeText(out.textContent); toast('Copied to clipboard', 'success'); }
+            catch { toast('Press Ctrl/Cmd+C to copy', 'warn'); }
+          });
+        },
+      };
+
+      /* ---------- AI Memory ---------- */
+      VIEWS['memory'] = {
+        render() {
+          const mems = [
+            ['target', 'Goal', 'Senior Backend Engineer by March 2026'],
+            ['file-search', 'Resume', 'Latest score 84/100 · impact is weakest dimension'],
+            ['mic', 'Interview', 'Behavioral mock 78/100 · needs more metrics'],
+            ['briefcase', 'Preference', 'Remote-first · $150k–195k target band'],
+          ];
+          return `<div class="glass rounded-2xl p-6">
+            <div class="flex flex-col gap-3 sm:flex-row">
+              <input data-mem placeholder="Teach your mentor something new…" class="flex-1 rounded-lg border border-white/10 bg-white/5 p-2.5 text-sm outline-none focus:border-primary/60" />
+              <button data-add class="btn-primary rounded-lg px-5 py-2.5 text-sm font-semibold text-white">Remember</button>
+            </div>
+            <div data-list class="mt-5 space-y-3">
+              ${mems.map(([icon, tag, text]) => `
+                <div class="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+                  <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary"><i data-lucide="${icon}" class="h-4 w-4"></i></span>
+                  <div><p class="text-xs uppercase tracking-wide text-slate-500">${tag}</p><p class="text-sm text-slate-200">${text}</p></div>
+                </div>`).join('')}
+            </div>
+          </div>`;
+        },
+        init(root) {
+          const list = $('[data-list]', root), inp = $('[data-mem]', root);
+          const addMem = () => {
+            const v = inp.value.trim(); if (!v) return;
+            const el = document.createElement('div');
+            el.className = 'view-enter flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4';
+            el.innerHTML = `<span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary"><i data-lucide="sparkles" class="h-4 w-4"></i></span><div><p class="text-xs uppercase tracking-wide text-slate-500">New</p><p class="text-sm text-slate-200">${esc(v)}</p></div>`;
+            list.prepend(el); inp.value = ''; icons();
+            toast('Saved to your AI memory', 'success');
+          };
+          $('[data-add]', root).addEventListener('click', addMem);
+          inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') addMem(); });
+        },
+      };
+
+      /* ---------- Progress ---------- */
+      VIEWS['progress'] = {
+        render() {
+          return `<div class="grid gap-6 lg:grid-cols-3">
+            <div class="glass rounded-2xl p-6 lg:col-span-2">
+              <h3 class="font-display font-semibold">All scores over time</h3>
+              <div class="mt-4 h-72"><canvas id="chart"></canvas></div>
+            </div>
+            <div class="space-y-4">
+              ${[['Applications', 12, 'briefcase'], ['Interviews', 4, 'mic'], ['Day streak', 9, 'flame']].map(([l, v, ic]) => `
+                <div class="glass stat-card rounded-2xl p-5"><div class="flex items-center justify-between"><span class="text-sm text-slate-400">${l}</span><i data-lucide="${ic}" class="h-4 w-4 text-primary"></i></div><p class="mt-2 font-display text-3xl font-bold gradient-text" data-count="${v}">0</p></div>`).join('')}
+            </div>
+          </div>`;
+        },
+        init() { countUp(); drawChart(true); },
+      };
+
+      /* ---------- Settings ---------- */
+      VIEWS['settings'] = {
+        render() {
+          const toggles = [['Email me weekly progress', true], ['AI memory recall', true], ['Share anonymized data', false], ['Beta features', false]];
+          return `<div class="mx-auto max-w-2xl space-y-6">
+            <div class="glass rounded-2xl p-6">
+              <h3 class="font-display text-lg font-semibold">Profile</h3>
+              <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                <div><label class="text-xs uppercase tracking-wide text-slate-500">Name</label><input value="Ravendra Patel" class="mt-1 w-full rounded-lg border border-white/10 bg-white/5 p-2.5 text-sm outline-none focus:border-primary/60" /></div>
+                <div><label class="text-xs uppercase tracking-wide text-slate-500">Target role</label><input value="Senior Backend Engineer" class="mt-1 w-full rounded-lg border border-white/10 bg-white/5 p-2.5 text-sm outline-none focus:border-primary/60" /></div>
+              </div>
+            </div>
+            <div class="glass rounded-2xl p-6">
+              <h3 class="font-display text-lg font-semibold">Preferences</h3>
+              <div class="mt-4 space-y-1">
+                ${toggles.map(([l, on]) => `<div class="flex items-center justify-between py-2.5"><span class="text-sm text-slate-200">${l}</span><div class="switch ${on ? 'on' : ''}" role="switch" aria-checked="${on}"></div></div>`).join('')}
+              </div>
+            </div>
+            <div class="flex justify-end gap-3">
+              <button data-action="reset" class="btn-ghost rounded-lg border border-white/10 px-5 py-2.5 text-sm font-semibold">Reset</button>
+              <button data-action="save" class="btn-primary rounded-lg px-6 py-2.5 text-sm font-semibold text-white">Save changes</button>
+            </div>
+          </div>`;
+        },
+        init(root) {
+          $$('.switch', root).forEach((sw) => sw.addEventListener('click', () => {
+            const on = sw.classList.toggle('on'); sw.setAttribute('aria-checked', String(on));
+          }));
+          $('[data-action="save"]', root).addEventListener('click', () => toast('Settings saved', 'success'));
+          $('[data-action="reset"]', root).addEventListener('click', () => toast('Settings reset to defaults', 'info'));
+        },
+      };
+
+      /* ---------- Admin ---------- */
+      VIEWS['admin'] = {
+        render() {
+          const stats = [['Users', '2,481', 'users'], ['MRR', '$8,940', 'dollar-sign'], ['AI cost', '$612', 'cpu'], ['Errors (24h)', '3', 'bug']];
+          const rows = [
+            ['admin@aicareermentor.dev', 'Admin', 'Pro', 'Active'],
+            ['demo@aicareermentor.dev', 'User', 'Free', 'Active'],
+            ['jane@acme.io', 'User', 'Pro', 'Active'],
+            ['sam@startup.dev', 'User', 'Free', 'Trial'],
+          ];
+          return `
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              ${stats.map(([l, v, ic]) => `<div class="glass stat-card rounded-2xl p-5"><div class="flex items-center justify-between"><span class="text-sm text-slate-400">${l}</span><i data-lucide="${ic}" class="h-4 w-4 text-primary"></i></div><p class="mt-2 font-display text-2xl font-bold">${v}</p></div>`).join('')}
+            </div>
+            <div class="glass mt-6 overflow-hidden rounded-2xl">
+              <div class="border-b border-white/10 p-5"><h3 class="font-display font-semibold">Recent users</h3></div>
+              <div class="overflow-x-auto"><table class="w-full text-left text-sm">
+                <thead class="text-xs uppercase tracking-wide text-slate-500"><tr><th class="p-4">Email</th><th class="p-4">Role</th><th class="p-4">Plan</th><th class="p-4">Status</th></tr></thead>
+                <tbody>${rows.map(([e, r, p, s]) => `<tr class="border-t border-white/5 hover:bg-white/5"><td class="p-4 text-slate-200">${e}</td><td class="p-4 text-slate-400">${r}</td><td class="p-4"><span class="rounded-full ${p === 'Pro' ? 'bg-primary/15 text-primary' : 'bg-white/10 text-slate-300'} px-2 py-0.5 text-xs">${p}</span></td><td class="p-4"><span class="text-emerald-400">● ${s}</span></td></tr>`).join('')}</tbody>
+              </table></div>
+            </div>`;
+        },
+      };
+
+      /* ============================================================
+         SHARED: chart + counters
+      ============================================================ */
+      function drawChart(extra = false) {
+        const canvas = $('#chart'); if (!canvas || !window.Chart) return;
+        if (chart) { chart.destroy(); chart = null; }
+        const ds = [
+          { label: 'Resume', data: [58, 64, 71, 78, 84], borderColor: 'hsl(250 84% 62%)', backgroundColor: 'hsla(250,84%,62%,0.15)', fill: true, tension: 0.4, pointBackgroundColor: 'hsl(250 84% 62%)' },
+          { label: 'ATS', data: [49, 57, 66, 74, 81], borderColor: 'hsl(190 95% 55%)', backgroundColor: 'hsla(190,95%,55%,0.15)', fill: true, tension: 0.4, pointBackgroundColor: 'hsl(190 95% 55%)' },
+        ];
+        if (extra) ds.push({ label: 'Interview', data: [40, 52, 61, 70, 78], borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.12)', fill: true, tension: 0.4, pointBackgroundColor: '#34d399' });
+        chart = new Chart(canvas, {
+          type: 'line',
+          data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'], datasets: ds },
           options: {
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { labels: { color: '#94a3b8', usePointStyle: true, boxWidth: 8 } } },
@@ -255,28 +898,199 @@
             },
           },
         });
+      }
 
-        // GSAP reveals + counters
-        if (window.gsap && !prefersReduced) {
-          gsap.registerPlugin(ScrollTrigger);
-          gsap.utils.toArray('.reveal').forEach((el, i) => {
-            gsap.to(el, {
-              opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: Math.min(i * 0.05, 0.4),
-              scrollTrigger: { trigger: el, start: 'top 92%', once: true },
-            });
-          });
-          document.querySelectorAll('[data-count]').forEach((el) => {
-            const end = +el.getAttribute('data-count'); const obj = { v: 0 };
-            ScrollTrigger.create({
-              trigger: el, start: 'top 95%', once: true,
-              onEnter: () => gsap.to(obj, { v: end, duration: 1.4, ease: 'power2.out', onUpdate: () => { el.textContent = Math.round(obj.v); } }),
-            });
-          });
-        } else {
-          document.querySelectorAll('.reveal').forEach((el) => { el.style.opacity = 1; el.style.transform = 'none'; });
-          document.querySelectorAll('[data-count]').forEach((el) => { el.textContent = el.getAttribute('data-count'); });
+      function countUp() {
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        $$('[data-count]').forEach((el) => {
+          const end = +el.getAttribute('data-count');
+          if (!window.gsap || reduced) { el.textContent = end; return; }
+          const obj = { v: 0 };
+          gsap.to(obj, { v: end, duration: 1.3, ease: 'power2.out', onUpdate: () => { el.textContent = Math.round(obj.v); } });
+        });
+      }
+
+      /* ============================================================
+         ROUTER
+      ============================================================ */
+      function renderNav() {
+        $('#nav').innerHTML = NAV.map(([slug, icon, label]) => `
+          <a href="#${slug}" data-slug="${slug}" class="nav-link flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-400 hover:bg-white/5 hover:text-white">
+            <i data-lucide="${icon}" class="h-[18px] w-[18px]"></i><span>${label}</span>
+          </a>`).join('');
+      }
+
+      function setActiveNav(slug) {
+        $$('#nav .nav-link').forEach((a) => {
+          const on = a.dataset.slug === slug;
+          a.classList.toggle('active', on);
+          a.classList.toggle('bg-white/5', on);
+          a.classList.toggle('font-semibold', on);
+          a.classList.toggle('text-white', on);
+          a.classList.toggle('text-slate-400', !on);
+        });
+      }
+
+      function route() {
+        const slug = (location.hash.replace('#', '') || 'dashboard');
+        const view = VIEWS[slug] || VIEWS['dashboard'];
+        const meta = META[slug] || META['dashboard'];
+        const realSlug = VIEWS[slug] ? slug : 'dashboard';
+
+        // page header
+        $('#pageHeader').innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-primary to-accent text-white shadow-lg shadow-primary/30"><i data-lucide="${meta.icon}" class="h-5 w-5"></i></span>
+            <div>
+              <h1 class="font-display text-2xl font-bold">${realSlug === 'dashboard' ? 'Welcome back, Ravendra 👋' : meta.label}</h1>
+              <p class="text-sm text-slate-400">${view.subtitle || 'AI Career Mentor'}</p>
+            </div>
+          </div>`;
+
+        // content
+        const content = $('#content');
+        content.innerHTML = `<div class="view-enter">${view.render()}</div>`;
+        const root = content.firstElementChild;
+        icons();
+        if (view.init) view.init(root);
+
+        setActiveNav(realSlug);
+        closeSidebar();
+        closeAllPanels();
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      }
+
+      /* ============================================================
+         TOPBAR: search, notifications, avatar, mobile sidebar, upgrade
+      ============================================================ */
+      function closeAllPanels() {
+        ['#searchResults', '#notifPanel', '#avatarPanel'].forEach((s) => $(s)?.classList.add('hidden'));
+      }
+      function openSidebar() { $('#sidebar').classList.remove('-translate-x-full'); $('#backdrop').classList.remove('hidden'); }
+      function closeSidebar() { if (window.innerWidth < 1024) { $('#sidebar').classList.add('-translate-x-full'); $('#backdrop').classList.add('hidden'); } }
+
+      function buildNotifs() {
+        const items = [
+          ['check-circle-2', 'Resume re-scored: 84 (+6)', '2h ago'],
+          ['mic', 'Interview report ready', 'Yesterday'],
+          ['briefcase', '3 new job matches above 85%', '2d ago'],
+        ];
+        $('#notifPanel').innerHTML = `
+          <div class="flex items-center justify-between border-b border-white/10 p-3"><p class="text-sm font-semibold">Notifications</p><button data-mark class="text-xs text-primary hover:underline">Mark all read</button></div>
+          <div class="max-h-80 overflow-y-auto">
+            ${items.map(([ic, t, time]) => `<div class="flex items-start gap-3 border-b border-white/5 p-3 hover:bg-white/5"><span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary"><i data-lucide="${ic}" class="h-4 w-4"></i></span><div><p class="text-sm text-slate-200">${t}</p><p class="text-xs text-slate-500">${time}</p></div></div>`).join('')}
+          </div>`;
+        icons();
+        $('#notifPanel [data-mark]').addEventListener('click', () => { closeAllPanels(); toast('All notifications marked read', 'info'); });
+      }
+
+      function buildAvatar() {
+        const items = [['user', 'Profile', 'settings'], ['settings', 'Settings', 'settings'], ['crown', 'Upgrade to Pro', '__upgrade']];
+        $('#avatarPanel').innerHTML = `
+          <div class="border-b border-white/10 p-3"><p class="text-sm font-semibold">Ravendra Patel</p><p class="text-xs text-slate-500">kurmivivek295@gmail.com</p></div>
+          <div class="p-1">
+            ${items.map(([ic, l, go]) => `<button data-go="${go}" class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-200 hover:bg-white/10"><i data-lucide="${ic}" class="h-4 w-4"></i>${l}</button>`).join('')}
+            <button data-signout class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-rose-300 hover:bg-rose-500/10"><i data-lucide="log-out" class="h-4 w-4"></i>Sign out</button>
+          </div>`;
+        icons();
+        $('#avatarPanel [data-signout]').addEventListener('click', () => { window.location.href = 'index.html'; });
+      }
+
+      function upgradeModal() {
+        closeAllPanels();
+        openModal(`
+          <div class="text-center">
+            <span class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-primary to-accent text-white"><i data-lucide="crown" class="h-6 w-6"></i></span>
+            <h3 class="mt-4 font-display text-xl font-bold">Upgrade to Pro</h3>
+            <p class="mt-1 text-sm text-slate-400">Unlimited everything across all 10 tools.</p>
+          </div>
+          <ul class="mt-5 space-y-2 text-sm">
+            ${['Unlimited resume & ATS scans', 'Unlimited AI mock interviews', 'PDF/DOCX exports', 'Priority AI models'].map((f) => `<li class="flex items-center gap-2"><i data-lucide="check" class="h-4 w-4 text-emerald-400"></i>${f}</li>`).join('')}
+          </ul>
+          <div class="mt-6 flex items-baseline justify-center gap-1"><span class="font-display text-4xl font-bold">$19</span><span class="text-slate-400">/mo</span></div>
+          <div class="mt-5 flex gap-3">
+            <button data-close class="btn-ghost flex-1 rounded-lg border border-white/10 py-2.5 text-sm font-semibold">Maybe later</button>
+            <button data-choose class="btn-primary flex-1 rounded-lg py-2.5 text-sm font-semibold text-white">Choose Pro</button>
+          </div>`);
+        $('#modalRoot [data-close]').addEventListener('click', closeModal);
+        $('#modalRoot [data-choose]').addEventListener('click', () => { closeModal(); toast('Welcome to Pro! 🎉 (demo)', 'success'); });
+      }
+
+      function buildSearch() {
+        const input = $('#search'), panel = $('#searchResults');
+        const render = (q) => {
+          const matches = NAV.filter(([slug, icon, label]) => label.toLowerCase().includes(q.toLowerCase()));
+          panel.innerHTML = (matches.length ? matches : [['', 'search-x', 'No tools found']])
+            .map(([slug, icon, label]) => slug
+              ? `<a href="#${slug}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-200 hover:bg-white/10"><i data-lucide="${icon}" class="h-4 w-4 text-primary"></i>${label}</a>`
+              : `<div class="flex items-center gap-3 px-3 py-2 text-sm text-slate-500"><i data-lucide="search-x" class="h-4 w-4"></i>No tools found</div>`).join('');
+          icons();
+        };
+        input.addEventListener('focus', () => { render(input.value); panel.classList.remove('hidden'); });
+        input.addEventListener('input', () => { render(input.value); panel.classList.remove('hidden'); });
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const first = panel.querySelector('a');
+            if (first) { location.hash = first.getAttribute('href'); input.blur(); }
+          }
+        });
+        // click a result navigates then closes (handled by global delegation + hashchange)
+        panel.addEventListener('click', () => setTimeout(closeAllPanels, 0));
+      }
+
+      /* ============================================================
+         GLOBAL EVENT DELEGATION  (data-go / data-action)
+      ============================================================ */
+      document.addEventListener('click', (e) => {
+        const goEl = e.target.closest('[data-go]');
+        if (goEl) {
+          const dest = goEl.dataset.go;
+          if (dest === '__upgrade') { upgradeModal(); return; }
+          location.hash = dest;
+          return;
+        }
+        const actEl = e.target.closest('[data-action]');
+        if (actEl) {
+          const a = actEl.dataset.action;
+          if (a === 'upgrade') upgradeModal();
         }
       });
+
+      /* close panels when clicking outside */
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#search') && !e.target.closest('#searchResults')) $('#searchResults')?.classList.add('hidden');
+        if (!e.target.closest('#bellBtn') && !e.target.closest('#notifPanel')) $('#notifPanel')?.classList.add('hidden');
+        if (!e.target.closest('#avatarBtn') && !e.target.closest('#avatarPanel')) $('#avatarPanel')?.classList.add('hidden');
+      });
+
+      /* ============================================================
+         BOOT
+      ============================================================ */
+      function boot() {
+        renderNav();
+        buildNotifs();
+        buildAvatar();
+        buildSearch();
+        icons();
+
+        // topbar buttons
+        $('#menuBtn').addEventListener('click', openSidebar);
+        $('#backdrop').addEventListener('click', closeSidebar);
+        $('#bellBtn').addEventListener('click', (e) => { e.stopPropagation(); const p = $('#notifPanel'); const willOpen = p.classList.contains('hidden'); closeAllPanels(); p.classList.toggle('hidden', !willOpen); });
+        $('#avatarBtn').addEventListener('click', (e) => { e.stopPropagation(); const p = $('#avatarPanel'); const willOpen = p.classList.contains('hidden'); closeAllPanels(); p.classList.toggle('hidden', !willOpen); });
+
+        // "/" focuses search
+        document.addEventListener('keydown', (e) => {
+          if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+            e.preventDefault(); $('#search').focus();
+          }
+        });
+
+        window.addEventListener('hashchange', route);
+        route();
+      }
+
+      window.addEventListener('load', boot);
     </script>
   </body>
 </html>
