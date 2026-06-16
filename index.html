@@ -123,9 +123,9 @@
             Powered by Claude, GPT &amp; Gemini
           </div>
 
-          <h1 data-hero class="font-display text-[2.6rem] font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
-            Your career, guided by<br class="hidden sm:block" /> an AI that
-            <span class="gradient-text rotate-word" id="rotateWord">remembers</span> you
+          <h1 data-hero class="font-display text-[2.6rem] font-extrabold leading-[1.12] tracking-tight sm:text-6xl">
+            Your career, guided by an AI<br class="hidden sm:block" /> that
+            <span class="gradient-text rotate-word" id="rotateWord">remembers you</span>
           </h1>
 
           <p data-hero class="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-slate-400 lg:mx-0">
@@ -134,7 +134,7 @@
 
           <!-- rearranged: the comma-list is now an animated capability row -->
           <div data-hero class="mt-6 flex flex-wrap justify-center gap-2 lg:justify-start">
-            <span class="pill glass rounded-full px-3 py-1.5 text-xs font-medium text-slate-300">📄 Parse résumé</span>
+            <span class="pill glass rounded-full px-3 py-1.5 text-xs font-medium text-slate-300">📄 Parse resume</span>
             <span class="pill glass rounded-full px-3 py-1.5 text-xs font-medium text-slate-300">🛡️ Beat the ATS</span>
             <span class="pill glass rounded-full px-3 py-1.5 text-xs font-medium text-slate-300">🎯 Close skill gaps</span>
             <span class="pill glass rounded-full px-3 py-1.5 text-xs font-medium text-slate-300">💼 Match to jobs</span>
@@ -181,7 +181,7 @@
               </div>
             </div>
           </div>
-          <div class="glass absolute -bottom-5 -left-3 hidden items-center gap-2 rounded-xl px-3 py-2 text-xs shadow-xl sm:flex"><i data-lucide="flame" class="h-4 w-4 text-primary"></i> 9-day streak</div>
+          <div class="glass absolute -bottom-5 -left-3 hidden items-center gap-2 rounded-xl px-3 py-2 text-xs shadow-xl sm:flex"><i data-lucide="trophy" class="h-4 w-4 text-primary"></i> Level 4 · Job Hunter</div>
         </div>
       </div>
     </section>
@@ -226,7 +226,7 @@
             <ul class="mt-6 space-y-3 text-sm">
               <li class="reveal flex items-start gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-accent"></i> Recalls past resumes, scores and feedback automatically</li>
               <li class="reveal flex items-start gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-accent"></i> Recommends the single best next action, every session</li>
-              <li class="reveal flex items-start gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-accent"></i> Tracks momentum with XP, streaks and badges</li>
+              <li class="reveal flex items-start gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-accent"></i> Tracks momentum with XP, levels and badges</li>
             </ul>
             <a href="dashboard.html" class="btn-primary mt-8 inline-block rounded-xl px-7 py-3 text-sm font-semibold">Open my dashboard →</a>
           </div>
@@ -293,7 +293,7 @@
         ['upload-cloud', 'Upload & parse', 'Drop a PDF/DOCX. We extract structure, score it 0–100, and store it in your memory.'],
         ['target', 'Analyze & improve', 'ATS scan, skill gaps and job matches turn weak spots into a clear, prioritized to-do list.'],
         ['mic', 'Practice out loud', 'Run AI mock interviews with feedback, and watch your interview score climb.'],
-        ['rocket', 'Apply & track', 'Tailored cover letters, a living roadmap, and XP/streaks keep you moving to the offer.'],
+        ['rocket', 'Apply & track', 'Tailored cover letters, a living roadmap, and XP/badges keep you moving to the offer.'],
       ];
       document.getElementById('timelineSteps').innerHTML = STEPS.map(([icon, title, desc], i) => `
         <div class="tl-step reveal relative pl-14 md:pl-0 md:grid md:grid-cols-2 md:gap-10 ${i % 2 ? 'md:[direction:rtl]' : ''}">
@@ -338,7 +338,7 @@
         // rotating word
         const rotateEl = document.getElementById('rotateWord');
         if (rotateEl && !reduced) {
-          const words = ['remembers', 'mentors', 'coaches', 'champions'];
+          const words = ['remembers you', 'mentors you', 'coaches you', 'champions you'];
           let wi = 0;
           setInterval(() => { wi = (wi + 1) % words.length; rotateEl.style.opacity = '0'; rotateEl.style.transform = 'translateY(8px)'; setTimeout(() => { rotateEl.textContent = words[wi]; rotateEl.style.opacity = '1'; rotateEl.style.transform = 'none'; }, 250); }, 2200);
         }

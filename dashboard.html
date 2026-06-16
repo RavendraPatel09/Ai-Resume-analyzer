@@ -157,7 +157,8 @@
     <script>
       /* ============================ DATA ============================ */
       const NAV = [
-        ['dashboard', 'layout-dashboard', 'Dashboard'], ['resume-analyzer', 'file-search', 'Resume Analyzer'],
+        ['dashboard', 'layout-dashboard', 'Dashboard'], ['career-report', 'bar-chart-3', 'Career Report'],
+        ['resume-analyzer', 'file-search', 'Resume Analyzer'],
         ['ats-scanner', 'shield-check', 'ATS Scanner'], ['skill-gap', 'target', 'Skill Gap'],
         ['job-match', 'briefcase', 'Job Match'], ['mock-interview', 'mic', 'Mock Interview'],
         ['chatbot', 'bot', 'Career Chatbot'], ['recruiter-insights', 'eye', 'Recruiter Insights'],
@@ -228,7 +229,8 @@
           const quick = [['mic', 'AI Mock Interview', 'Practice your next round', 'mock-interview'], ['mail', 'Cover Letter', 'Generate one in seconds', 'cover-letter'], ['map', 'Career Roadmap', 'See your 6-month plan', 'roadmap']];
           const READY = Math.round((84 + 81 + 76 + 68) / 4); // blended readiness
           return `
-            <div class="glass relative mb-6 flex flex-col items-center gap-6 overflow-hidden rounded-2xl p-6 sm:flex-row sm:p-7">
+            <div class="grid gap-6 lg:grid-cols-3">
+            <div class="glass relative flex flex-col items-center gap-6 overflow-hidden rounded-2xl p-6 sm:flex-row sm:p-7 lg:col-span-2">
               <div class="relative grid shrink-0 place-items-center">
                 <svg class="h-32 w-32 -rotate-90" viewBox="0 0 120 120">
                   <circle class="ring-track" cx="60" cy="60" r="52" fill="none" stroke-width="10" />
@@ -250,7 +252,21 @@
                 </div>
               </div>
             </div>
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="glass flex flex-col rounded-2xl p-6">
+              <div class="flex items-center gap-3">
+                <span class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent font-display text-sm font-bold text-white">L4</span>
+                <div><p class="font-display font-semibold leading-tight">Level 4 · Job Hunter</p><p class="text-xs text-slate-500">1,240 / 1,600 XP</p></div>
+              </div>
+              <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div data-xp class="h-full rounded-full bg-gradient-to-r from-primary to-accent" style="width:0%;transition:width 1.2s cubic-bezier(.2,.8,.2,1)"></div></div>
+              <div class="mt-5 grid grid-cols-2 gap-3">
+                <div class="rounded-xl bg-white/5 p-3 text-center"><p class="font-display text-2xl font-bold gradient-text" data-count="1240">0</p><p class="text-xs text-slate-500">total XP</p></div>
+                <div class="rounded-xl bg-white/5 p-3 text-center"><p class="font-display text-2xl font-bold gradient-text" data-count="6">0</p><p class="text-xs text-slate-500">badges</p></div>
+              </div>
+              <button data-go="progress" class="btn-ghost mt-4 rounded-lg py-2 text-sm font-semibold">View progress →</button>
+            </div>
+            </div>
+
+            <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               ${stats.map(([icon, label, val, delta]) => `
                 <div class="glass stat-card rounded-2xl p-5">
                   <div class="flex items-center justify-between">
@@ -260,24 +276,6 @@
                   <p class="mt-4 font-display text-3xl font-bold" style="color:${scoreColor(val)}" data-count="${val}">0</p>
                   <p class="text-sm text-slate-400">${label}</p>
                 </div>`).join('')}
-            </div>
-
-            <div class="mt-6 glass rounded-2xl p-6">
-              <div class="flex flex-wrap items-center justify-between gap-5">
-                <div class="flex items-center gap-4">
-                  <span class="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent font-display text-base font-bold text-white">L4</span>
-                  <div>
-                    <p class="font-display font-semibold">Level 4 · Job Hunter</p>
-                    <p class="text-xs text-slate-500">1,240 / 1,600 XP to Level 5</p>
-                    <div class="mt-2 h-2 w-48 overflow-hidden rounded-full bg-white/10"><div data-xp class="h-full rounded-full bg-gradient-to-r from-primary to-accent" style="width:0%;transition:width 1.2s cubic-bezier(.2,.8,.2,1)"></div></div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-6">
-                  <div class="text-center"><p class="font-display text-2xl font-bold text-primary"><span data-count="9">0</span>🔥</p><p class="text-xs text-slate-500">day streak</p></div>
-                  <div class="text-center"><p class="font-display text-2xl font-bold gradient-text"><span data-count="1240">0</span></p><p class="text-xs text-slate-500">total XP</p></div>
-                  <div class="text-center"><p class="font-display text-2xl font-bold gradient-text"><span data-count="6">0</span></p><p class="text-xs text-slate-500">badges</p></div>
-                </div>
-              </div>
             </div>
 
             <div class="mt-6 grid gap-6 lg:grid-cols-3">
@@ -325,6 +323,95 @@
           }
           const xp = root && root.querySelector('[data-xp]');
           if (xp) requestAnimationFrame(() => { xp.style.width = Math.round((1240 / 1600) * 100) + '%'; });
+        },
+      };
+
+      /* ---------- Career Intelligence Report ---------- */
+      VIEWS['career-report'] = {
+        subtitle: 'A 360° AI assessment of your job-readiness.',
+        render() {
+          const dims = [
+            ['file-search', 'Resume Quality', 84, 'Strong structure — quantify a few impact bullets to push past 90.'],
+            ['github', 'GitHub Quality', 72, 'Healthy activity; add READMEs and pin your 6 best repos.'],
+            ['layout-template', 'Portfolio Quality', 68, 'Good projects — add live demos and short case studies.'],
+            ['mic', 'Interview Readiness', 76, 'Behavioral is strong; drill system-design rounds.'],
+            ['graduation-cap', 'Internship Readiness', 81, 'Well-positioned for SWE internships this cycle.'],
+          ];
+          const overall = Math.round(dims.reduce((a, d) => a + d[2], 0) / dims.length);
+          const verdict = overall >= 80 ? 'Excellent' : overall >= 65 ? 'On track' : 'Needs work';
+          const gaps = [['System design', 40, '3 wks'], ['Kubernetes', 25, '4 wks'], ['AWS', 55, '2 wks'], ['Testing & CI', 60, '2 wks']];
+          const road = [
+            ['Weeks 1–2', 'System design fundamentals', 'Patterns, scaling, 2 mock designs'],
+            ['Weeks 3–4', 'Kubernetes hands-on', 'Containerize &amp; deploy a service'],
+            ['Weeks 5–6', 'AWS core', 'EC2 · S3 · RDS · IAM mini-project'],
+            ['Weeks 7–8', 'Tests + CI', 'Add coverage &amp; a pipeline to your projects'],
+          ];
+          const C = 327;
+          return `
+            <div class="grid gap-6 lg:grid-cols-3">
+              <div class="glass flex flex-col items-center justify-center rounded-2xl p-6 text-center">
+                <div class="relative grid place-items-center">
+                  <svg class="h-36 w-36 -rotate-90" viewBox="0 0 120 120">
+                    <circle class="ring-track" cx="60" cy="60" r="52" fill="none" stroke-width="10" />
+                    <circle data-ring class="ring-bar" cx="60" cy="60" r="52" fill="none" stroke="url(#crg)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}" />
+                    <defs><linearGradient id="crg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(250 84% 62%)" /><stop offset="1" stop-color="hsl(190 95% 55%)" /></linearGradient></defs>
+                  </svg>
+                  <div class="absolute text-center"><p data-count="${overall}" class="font-display text-4xl font-bold gradient-text">0</p><p class="text-[10px] font-semibold uppercase tracking-widest text-slate-500">/ 100</p></div>
+                </div>
+                <p class="mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"><i data-lucide="bar-chart-3" class="h-3.5 w-3.5"></i> Career Intelligence</p>
+                <p class="mt-2 font-display text-lg font-semibold">${verdict} — ready to apply</p>
+                <p class="mt-1 text-sm text-slate-400">Blended from the 5 signals on the right.</p>
+                <button data-action="report" class="btn-ghost mt-4 rounded-lg px-4 py-2 text-sm font-semibold"><i data-lucide="refresh-cw" class="mr-1.5 inline h-4 w-4"></i> Re-run analysis</button>
+              </div>
+              <div class="glass rounded-2xl p-6 lg:col-span-2">
+                <h3 class="font-display font-semibold">Quality breakdown</h3>
+                <div class="mt-5 space-y-4">
+                  ${dims.map(([ic, l, v, note]) => `
+                    <div>
+                      <div class="flex items-center gap-3">
+                        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/5 text-primary"><i data-lucide="${ic}" class="h-4 w-4"></i></span>
+                        <div class="flex-1">
+                          <div class="flex items-center justify-between text-sm"><span class="font-medium">${l}</span><span class="font-semibold" style="color:${scoreColor(v)}">${v}</span></div>
+                          <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10"><div data-bar="${v}" class="h-full rounded-full" style="width:0%;background:${scoreColor(v)};transition:width 1s cubic-bezier(.2,.8,.2,1)"></div></div>
+                        </div>
+                      </div>
+                      <p class="mt-1.5 pl-12 text-xs text-slate-500">${note}</p>
+                    </div>`).join('')}
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 grid gap-6 lg:grid-cols-2">
+              <div class="glass rounded-2xl p-6">
+                <h3 class="inline-flex items-center gap-2 font-display font-semibold"><i data-lucide="target" class="h-5 w-5 text-primary"></i> Skill gaps</h3>
+                <p class="mt-1 text-sm text-slate-400">Close these to be role-ready in ~9 weeks.</p>
+                <div class="mt-4 space-y-4">
+                  ${gaps.map(([l, v, t]) => `<div><div class="flex justify-between text-sm"><span class="text-slate-300">${l}</span><span class="text-slate-500">${t}</span></div><div class="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10"><div data-bar="${v}" class="h-full rounded-full bg-gradient-to-r from-primary to-accent" style="width:0%;transition:width 1s cubic-bezier(.2,.8,.2,1)"></div></div></div>`).join('')}
+                </div>
+              </div>
+              <div class="glass rounded-2xl p-6">
+                <h3 class="inline-flex items-center gap-2 font-display font-semibold"><i data-lucide="route" class="h-5 w-5 text-accent"></i> Learning roadmap</h3>
+                <p class="mt-1 text-sm text-slate-400">An 8-week plan to close your gaps.</p>
+                <div class="relative mt-4 space-y-4 pl-6">
+                  <div class="absolute bottom-2 left-[7px] top-2 w-px bg-white/10"></div>
+                  ${road.map(([w, t, d]) => `<div class="relative"><span class="absolute -left-[1.4rem] top-1 h-3.5 w-3.5 rounded-full border-2 border-primary bg-ink"></span><p class="text-xs uppercase tracking-wide text-slate-500">${w}</p><p class="font-medium">${t}</p><p class="text-xs text-slate-400">${d}</p></div>`).join('')}
+                </div>
+                <button data-go="roadmap" class="btn-ghost mt-5 w-full rounded-lg py-2.5 text-sm font-semibold">Open full roadmap →</button>
+              </div>
+            </div>`;
+        },
+        init(root) {
+          countUp();
+          const ring = root.querySelector('[data-ring]');
+          if (ring) {
+            const C = 327, val = +(root.querySelector('[data-count]')?.getAttribute('data-count') || 76);
+            const off = C * (1 - val / 100);
+            if (window.gsap && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) gsap.fromTo(ring, { strokeDashoffset: C }, { strokeDashoffset: off, duration: 1.4, ease: 'power2.out' });
+            else requestAnimationFrame(() => { ring.style.strokeDashoffset = off; });
+          }
+          root.querySelectorAll('[data-bar]').forEach((b) => requestAnimationFrame(() => { b.style.width = b.dataset.bar + '%'; }));
+          const re = root.querySelector('[data-action="report"]');
+          if (re) re.addEventListener('click', () => toast('Career Intelligence re-analyzed — saved to memory', 'success'));
         },
       };
 
@@ -653,12 +740,12 @@
       VIEWS['progress'] = {
         subtitle: 'Your momentum, visualized.',
         render() {
-          const side = [['Applications', 12, 'briefcase'], ['Interviews', 4, 'mic'], ['Day streak', 9, 'flame']];
+          const side = [['Applications', 12, 'briefcase'], ['Interviews', 4, 'mic'], ['Tools used', 9, 'layout-grid']];
           const opac = [0.06, 0.28, 0.5, 0.72, 1], WEEKS = 18;
           let cells = '';
           for (let w = 0; w < WEEKS; w++) for (let d = 0; d < 7; d++) { const i = w * 7 + d; const lvl = Math.floor(Math.abs(Math.sin(i * 12.9898)) * 5) % 5; cells += `<span class="h-3 w-3 rounded-[3px]" title="${lvl * 2} activities" style="background:hsla(250,84%,62%,${opac[lvl]})"></span>`; }
           const legend = opac.map((o) => `<span class="h-3 w-3 rounded-[3px]" style="background:hsla(250,84%,62%,${o})"></span>`).join('');
-          const badges = [['trophy', 'First resume', true], ['flame', '7-day streak', true], ['shield-check', 'ATS 80+', true], ['mic', '5 interviews', true], ['target', 'Skill master', false], ['crown', 'Pro member', false]];
+          const badges = [['trophy', 'First resume', true], ['briefcase', '10 applications', true], ['shield-check', 'ATS 80+', true], ['mic', '5 interviews', true], ['target', 'Skill master', false], ['crown', 'Pro member', false]];
           return `
             <div class="grid gap-6 lg:grid-cols-3">
               <div class="glass rounded-2xl p-6 lg:col-span-2"><h3 class="font-display font-semibold">All scores over time</h3><div class="mt-4 h-64"><canvas id="chart"></canvas></div></div>
@@ -666,7 +753,7 @@
             </div>
             <div class="glass mt-6 rounded-2xl p-6">
               <div class="flex items-center justify-between"><h3 class="font-display font-semibold">Activity heatmap</h3><span class="text-xs text-slate-500">last 18 weeks</span></div>
-              <div class="mt-4 overflow-x-auto pb-1"><div class="grid w-max grid-flow-col grid-rows-7 gap-1">${cells}</div></div>
+              <div class="mt-4 overflow-x-auto pb-1"><div class="grid w-max gap-1" style="grid-auto-flow:column;grid-template-rows:repeat(7,0.75rem)">${cells}</div></div>
               <div class="mt-3 flex items-center justify-end gap-1 text-xs text-slate-500">Less ${legend} More</div>
             </div>
             <div class="glass mt-6 rounded-2xl p-6">
