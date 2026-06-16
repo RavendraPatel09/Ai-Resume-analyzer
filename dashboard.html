@@ -741,9 +741,9 @@
         subtitle: 'Your momentum, visualized.',
         render() {
           const side = [['Applications', 12, 'briefcase'], ['Interviews', 4, 'mic'], ['Tools used', 9, 'layout-grid']];
-          const opac = [0.06, 0.28, 0.5, 0.72, 1], WEEKS = 18;
+          const opac = [0.06, 0.28, 0.5, 0.72, 1], WEEKS = 52;
           let cells = '';
-          for (let w = 0; w < WEEKS; w++) for (let d = 0; d < 7; d++) { const i = w * 7 + d; const lvl = Math.floor(Math.abs(Math.sin(i * 12.9898)) * 5) % 5; cells += `<span class="h-3 w-3 rounded-[3px]" title="${lvl * 2} activities" style="background:hsla(250,84%,62%,${opac[lvl]})"></span>`; }
+          for (let w = 0; w < WEEKS; w++) for (let d = 0; d < 7; d++) { const i = w * 7 + d; const lvl = Math.floor(Math.abs(Math.sin(i * 12.9898)) * 5) % 5; cells += `<span class="rounded-[3px]" title="${lvl * 2} activities" style="aspect-ratio:1;background:hsla(250,84%,62%,${opac[lvl]})"></span>`; }
           const legend = opac.map((o) => `<span class="h-3 w-3 rounded-[3px]" style="background:hsla(250,84%,62%,${o})"></span>`).join('');
           const badges = [['trophy', 'First resume', true], ['briefcase', '10 applications', true], ['shield-check', 'ATS 80+', true], ['mic', '5 interviews', true], ['target', 'Skill master', false], ['crown', 'Pro member', false]];
           return `
@@ -752,8 +752,8 @@
               <div class="space-y-4">${side.map(([l, v, ic]) => `<div class="glass stat-card rounded-2xl p-5"><div class="flex items-center justify-between"><span class="text-sm text-slate-400">${l}</span><i data-lucide="${ic}" class="h-4 w-4 text-primary"></i></div><p class="mt-2 font-display text-3xl font-bold gradient-text" data-count="${v}">0</p></div>`).join('')}</div>
             </div>
             <div class="glass mt-6 rounded-2xl p-6">
-              <div class="flex items-center justify-between"><h3 class="font-display font-semibold">Activity heatmap</h3><span class="text-xs text-slate-500">last 18 weeks</span></div>
-              <div class="mt-4 overflow-x-auto pb-1"><div class="grid w-max gap-1" style="grid-auto-flow:column;grid-template-rows:repeat(7,0.75rem)">${cells}</div></div>
+              <div class="flex items-center justify-between"><h3 class="font-display font-semibold">Activity heatmap</h3><span class="text-xs text-slate-500">past year</span></div>
+              <div class="mt-4"><div class="grid w-full gap-1" style="grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);grid-template-rows:repeat(7,auto)">${cells}</div></div>
               <div class="mt-3 flex items-center justify-end gap-1 text-xs text-slate-500">Less ${legend} More</div>
             </div>
             <div class="glass mt-6 rounded-2xl p-6">
