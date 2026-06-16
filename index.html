@@ -3,16 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Career Mentor — Land your next role, faster</title>
+    <title>AI Career Mentor — 10 AI tools to land your next role, faster</title>
     <meta
       name="description"
-      content="AI-powered resume analysis, ATS optimization, mock interviews, and a 24/7 career mentor that remembers you."
+      content="Resume parsing, ATS scanning, skill-gap analysis, job matching, AI mock interviews, a 24/7 mentor chatbot, recruiter insights, career roadmaps, a resume builder, and cover letters — one AI that remembers your journey."
     />
+
     <!--
-      STATIC PREVIEW (runs with VS Code "Go Live" / Live Server).
-      This is a no-build visual demo of the design system. The full app
-      (auth, AI, uploads) is the Next.js + NestJS stack — run `pnpm dev`.
+      STATIC PREVIEW · no build step required.
+      Open with VS Code "Go Live" / Live Server. The full product is the
+      Next.js + NestJS monorepo — run `pnpm dev` for auth, AI and uploads.
+      Animations: GSAP + ScrollTrigger.  Icons: Lucide.  Utility CSS: Tailwind CDN.
     -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -20,169 +23,626 @@
         theme: {
           extend: {
             colors: {
-              primary: 'hsl(250 84% 60%)',
-              accent: 'hsl(199 89% 48%)',
+              primary: 'hsl(250 84% 62%)',
+              accent: 'hsl(190 95% 55%)',
+              ink: 'hsl(240 15% 4%)',
             },
-            fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+              display: ['"Sora"', 'Inter', 'sans-serif'],
+            },
+            boxShadow: {
+              glow: '0 0 0 1px rgba(124,108,255,.35), 0 18px 60px -12px rgba(124,108,255,.45)',
+            },
           },
         },
       };
     </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap"
       rel="stylesheet"
     />
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+    <!-- Lucide icons -->
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+
     <style>
+      :root {
+        --primary: 250 84% 62%;
+        --accent: 190 95% 55%;
+        --bg: 240 17% 4%;
+      }
+      * { -webkit-tap-highlight-color: transparent; }
+      html { scroll-behavior: smooth; }
       body {
         font-family: 'Inter', system-ui, sans-serif;
+        background: hsl(var(--bg));
+        color: #e7e8ee;
+        overflow-x: hidden;
       }
+      .font-display { font-family: 'Sora', Inter, sans-serif; }
+
+      /* ---------- Surfaces ---------- */
       .glass {
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        background: rgba(255, 255, 255, 0.05);
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-        backdrop-filter: blur(16px);
-      }
-      html:not(.dark) .glass {
-        border-color: rgba(255, 255, 255, 0.4);
-        background: rgba(255, 255, 255, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.035);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
       }
       .gradient-text {
-        background: linear-gradient(90deg, hsl(250 84% 60%), hsl(199 89% 48%), hsl(250 84% 60%));
+        background: linear-gradient(100deg, hsl(var(--primary)), hsl(var(--accent)) 60%, hsl(var(--primary)));
+        background-size: 200% auto;
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
+        animation: shine 6s linear infinite;
       }
-      .aurora {
-        background:
-          radial-gradient(60% 50% at 20% 10%, hsla(250, 84%, 60%, 0.18), transparent),
-          radial-gradient(50% 50% at 90% 20%, hsla(199, 89%, 48%, 0.18), transparent),
-          radial-gradient(60% 60% at 50% 100%, hsla(250, 84%, 60%, 0.12), transparent);
+      @keyframes shine { to { background-position: 200% center; } }
+
+      /* ---------- Ambient background ---------- */
+      .grid-bg {
+        position: fixed; inset: 0; z-index: -2;
+        background-image:
+          linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+        background-size: 56px 56px;
+        mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 75%);
+        -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 75%);
       }
-      .fade-up {
-        animation: fadeUp 0.6s ease-out both;
+      .orb {
+        position: fixed; z-index: -1; border-radius: 9999px;
+        filter: blur(80px); opacity: .5; pointer-events: none;
       }
-      @keyframes fadeUp {
-        from {
-          opacity: 0;
-          transform: translateY(16px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+      .orb-1 { width: 480px; height: 480px; top: -120px; left: -80px;
+        background: radial-gradient(circle, hsla(250,84%,62%,.55), transparent 70%); }
+      .orb-2 { width: 460px; height: 460px; top: 10%; right: -120px;
+        background: radial-gradient(circle, hsla(190,95%,55%,.45), transparent 70%); }
+      .orb-3 { width: 520px; height: 520px; bottom: -160px; left: 30%;
+        background: radial-gradient(circle, hsla(280,80%,60%,.30), transparent 70%); }
+
+      /* ---------- Custom cursor (desktop only) ---------- */
+      .cursor-dot, .cursor-ring {
+        position: fixed; top: 0; left: 0; border-radius: 9999px;
+        pointer-events: none; z-index: 9999; mix-blend-mode: difference;
+        transform: translate(-50%, -50%);
+      }
+      .cursor-dot { width: 7px; height: 7px; background: #fff; }
+      .cursor-ring {
+        width: 38px; height: 38px; border: 1.5px solid rgba(255,255,255,.6);
+        transition: width .25s, height .25s, background .25s, border-color .25s;
+      }
+      .cursor-ring.is-active {
+        width: 64px; height: 64px; background: rgba(255,255,255,.08); border-color: transparent;
+      }
+      @media (hover: none) { .cursor-dot, .cursor-ring { display: none; } }
+
+      /* ---------- Buttons ---------- */
+      .btn-primary {
+        position: relative; overflow: hidden;
+        background: linear-gradient(100deg, hsl(var(--primary)), hsl(var(--accent)));
+        box-shadow: 0 12px 40px -10px hsla(250,84%,62%,.7);
+        will-change: transform;
+      }
+      .btn-primary::after {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(100deg, transparent, rgba(255,255,255,.35), transparent);
+        transform: translateX(-120%); transition: transform .6s ease;
+      }
+      .btn-primary:hover::after { transform: translateX(120%); }
+
+      /* ---------- Tool cards ---------- */
+      .tool-card {
+        position: relative; overflow: hidden;
+        border: 1px solid rgba(255,255,255,.08);
+        background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+        transform-style: preserve-3d;
+        transition: border-color .3s ease, box-shadow .3s ease, transform .15s ease;
+        will-change: transform;
+      }
+      /* glow that follows the cursor */
+      .tool-card::before {
+        content: ''; position: absolute; inset: 0; opacity: 0;
+        background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%),
+          hsla(250,84%,62%,.18), transparent 45%);
+        transition: opacity .35s ease;
+      }
+      .tool-card:hover { border-color: hsla(250,84%,62%,.5); box-shadow: var(--tw-shadow, 0 24px 60px -20px rgba(0,0,0,.6)); }
+      .tool-card:hover::before { opacity: 1; }
+      .tool-card:hover .tool-icon {
+        transform: translateZ(40px) scale(1.08);
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+        color: #fff;
+      }
+      .tool-icon { transition: transform .35s cubic-bezier(.2,.8,.2,1), background .35s, color .35s; }
+      .tool-card:hover .tool-arrow { opacity: 1; transform: translateX(0); }
+      .tool-arrow { opacity: 0; transform: translateX(-6px); transition: all .3s ease; }
+
+      /* ---------- Reveal (pre-GSAP fallback safe) ---------- */
+      .reveal { opacity: 0; transform: translateY(28px); }
+      .gsap-ready .reveal { opacity: 0; }
+
+      /* ---------- Marquee ---------- */
+      .marquee { display: flex; gap: 3rem; width: max-content; animation: marquee 28s linear infinite; }
+      @keyframes marquee { to { transform: translateX(-50%); } }
+
+      /* ---------- Misc ---------- */
+      .scroll-progress { transform-origin: 0 50%; transform: scaleX(0); }
+      ::selection { background: hsla(250,84%,62%,.4); color: #fff; }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+        .reveal { opacity: 1 !important; transform: none !important; }
       }
     </style>
   </head>
-  <body class="aurora min-h-screen bg-slate-950 text-slate-100 dark:bg-slate-950 dark:text-slate-100">
-    <!-- light-mode base color -->
-    <script>
-      if (!document.documentElement.classList.contains('dark')) {
-        document.body.classList.remove('bg-slate-950', 'text-slate-100');
-        document.body.classList.add('bg-slate-50', 'text-slate-900');
-      }
-    </script>
 
-    <!-- Nav -->
-    <header class="sticky top-0 z-50">
-      <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <a href="index.html" class="flex items-center gap-2 font-bold">
-          <span class="text-xl">✨</span>
-          <span class="gradient-text text-lg">AI Career Mentor</span>
+  <body class="min-h-screen antialiased">
+    <!-- ambient background -->
+    <div class="grid-bg"></div>
+    <div class="orb orb-1" data-orb></div>
+    <div class="orb orb-2" data-orb></div>
+    <div class="orb orb-3" data-orb></div>
+
+    <!-- custom cursor -->
+    <div class="cursor-ring" id="cursorRing"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+
+    <!-- scroll progress -->
+    <div class="fixed inset-x-0 top-0 z-[60] h-0.5">
+      <div class="scroll-progress h-full bg-gradient-to-r from-primary to-accent" id="scrollBar"></div>
+    </div>
+
+    <!-- ============================ NAV ============================ -->
+    <header id="nav" class="fixed inset-x-0 top-0 z-50 transition-all duration-300">
+      <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
+        <a href="index.html" data-cursor class="flex items-center gap-2.5 font-bold">
+          <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-lg shadow-primary/30">
+            <i data-lucide="sparkles" class="h-5 w-5"></i>
+          </span>
+          <span class="font-display text-lg tracking-tight">AI Career Mentor</span>
         </a>
-        <nav class="flex items-center gap-2">
-          <button
-            id="themeBtn"
-            class="glass grid h-10 w-10 place-items-center rounded-lg text-lg"
-            aria-label="Toggle theme"
-          >
-            🌙
-          </button>
-          <a href="dashboard.html" class="rounded-lg px-4 py-2 text-sm font-medium hover:opacity-80"
-            >Demo dashboard</a
-          >
+
+        <nav class="hidden items-center gap-1 md:flex">
+          <a href="#tools" data-cursor class="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white">Tools</a>
+          <a href="#how" data-cursor class="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white">How it works</a>
+          <a href="#why" data-cursor class="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white">Why us</a>
+          <a href="dashboard.html" data-cursor class="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white">Dashboard</a>
+        </nav>
+
+        <div class="flex items-center gap-2">
+          <a href="dashboard.html" data-cursor class="hidden rounded-xl px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white sm:block">Sign in</a>
           <a
             href="dashboard.html"
-            class="rounded-lg bg-gradient-to-r from-primary to-accent px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30"
-            >Get started</a
-          >
-        </nav>
+            data-cursor data-magnetic
+            class="btn-primary rounded-xl px-5 py-2.5 text-sm font-semibold text-white"
+          >Get started free</a>
+        </div>
       </div>
     </header>
 
-    <!-- Hero -->
-    <section class="mx-auto flex max-w-6xl flex-col items-center px-6 py-24 text-center">
-      <div class="glass fade-up mb-6 flex items-center gap-2 rounded-full px-4 py-1.5 text-sm">
-        ✨ Powered by Claude, GPT &amp; Gemini
+    <!-- ============================ HERO ============================ -->
+    <section class="relative mx-auto flex max-w-7xl flex-col items-center px-5 pb-20 pt-36 text-center sm:px-8 sm:pt-44">
+      <div data-hero class="glass mb-7 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm text-slate-300">
+        <span class="relative flex h-2 w-2">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75"></span>
+          <span class="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
+        </span>
+        Powered by Claude, GPT &amp; Gemini
       </div>
-      <h1 class="fade-up max-w-4xl text-5xl font-extrabold leading-tight tracking-tight md:text-7xl">
-        Land your next role with an
-        <span class="gradient-text">AI mentor that remembers you</span>
+
+      <h1 data-hero class="font-display max-w-4xl text-[2.7rem] font-extrabold leading-[1.05] tracking-tight sm:text-6xl md:text-7xl">
+        Your career, guided by an
+        <span class="gradient-text">AI that remembers you</span>
       </h1>
-      <p class="fade-up mt-6 max-w-2xl text-lg opacity-70">
-        Analyze your resume, beat the ATS, close skill gaps, practice interviews, and follow a
-        personalized roadmap — all guided by an AI that tracks every step of your journey.
+
+      <p data-hero class="mt-7 max-w-2xl text-lg leading-relaxed text-slate-400">
+        Ten AI-powered tools in one place — parse your resume, beat the ATS, close skill gaps,
+        match to jobs, ace mock interviews, and follow a roadmap built around <em class="not-italic text-slate-200">you</em>.
       </p>
-      <div class="fade-up mt-10 flex flex-col gap-3 sm:flex-row">
-        <a
-          href="dashboard.html"
-          class="rounded-lg bg-gradient-to-r from-primary to-accent px-8 py-3 font-semibold text-white shadow-lg shadow-primary/30"
-          >Start free →</a
-        >
-        <a href="dashboard.html" class="glass rounded-lg px-8 py-3 font-semibold">View demo dashboard</a>
+
+      <div data-hero class="mt-10 flex flex-col items-center gap-3 sm:flex-row">
+        <a href="dashboard.html" data-cursor data-magnetic class="btn-primary rounded-xl px-8 py-3.5 text-base font-semibold text-white">
+          Start free — analyze my resume →
+        </a>
+        <a href="#tools" data-cursor data-magnetic class="glass rounded-xl px-8 py-3.5 text-base font-semibold text-white transition hover:bg-white/10">
+          Explore the 10 tools
+        </a>
       </div>
-      <div class="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm opacity-70">
-        <span>✅ No credit card</span><span>✅ PDF / DOCX / TXT</span><span>✅ 24/7 mentor</span>
+
+      <div data-hero class="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-400">
+        <span class="inline-flex items-center gap-1.5"><i data-lucide="check-circle-2" class="h-4 w-4 text-accent"></i> No credit card</span>
+        <span class="inline-flex items-center gap-1.5"><i data-lucide="file-text" class="h-4 w-4 text-accent"></i> PDF · DOCX · TXT</span>
+        <span class="inline-flex items-center gap-1.5"><i data-lucide="shield-check" class="h-4 w-4 text-accent"></i> Private &amp; secure</span>
+      </div>
+
+      <!-- floating preview card -->
+      <div data-hero class="relative mt-16 w-full max-w-4xl">
+        <div class="glass rounded-3xl p-2 shadow-2xl shadow-primary/10" data-float>
+          <div class="rounded-[1.25rem] bg-ink/80 p-5 sm:p-7">
+            <div class="mb-5 flex items-center gap-1.5">
+              <span class="h-3 w-3 rounded-full bg-red-400/80"></span>
+              <span class="h-3 w-3 rounded-full bg-yellow-400/80"></span>
+              <span class="h-3 w-3 rounded-full bg-green-400/80"></span>
+              <span class="ml-3 text-xs text-slate-500">aicareermentor.dev/dashboard</span>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-3">
+              <div class="glass rounded-2xl p-5 text-left">
+                <p class="text-xs uppercase tracking-wide text-slate-500">Resume score</p>
+                <p class="mt-2 font-display text-4xl font-bold text-emerald-400" data-count="84">0</p>
+                <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+                  <div class="h-full rounded-full bg-gradient-to-r from-primary to-accent" style="width:84%"></div>
+                </div>
+              </div>
+              <div class="glass rounded-2xl p-5 text-left">
+                <p class="text-xs uppercase tracking-wide text-slate-500">ATS match</p>
+                <p class="mt-2 font-display text-4xl font-bold text-accent" data-count="81">0</p>
+                <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+                  <div class="h-full rounded-full bg-gradient-to-r from-accent to-primary" style="width:81%"></div>
+                </div>
+              </div>
+              <div class="glass rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 p-5 text-left">
+                <p class="inline-flex items-center gap-1.5 text-xs font-medium text-primary"><i data-lucide="sparkles" class="h-3.5 w-3.5"></i> AI next step</p>
+                <p class="mt-2 text-sm font-semibold leading-snug text-white">Quantify 2 Python project bullets</p>
+                <p class="mt-1 text-xs text-slate-400">Your impact score is the lowest dimension.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Features -->
-    <section
-      id="features"
-      class="mx-auto grid max-w-6xl gap-6 px-6 pb-28 sm:grid-cols-2 lg:grid-cols-3"
-    ></section>
+    <!-- ============================ MARQUEE ============================ -->
+    <section class="relative overflow-hidden border-y border-white/5 py-6">
+      <div class="marquee text-sm font-medium uppercase tracking-widest text-slate-500">
+        <!-- duplicated for seamless loop -->
+        <span class="flex items-center gap-3">Resume Parsing <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">ATS Scanner <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">Skill Gap <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">Job Match <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">Mock Interview <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">Career Chatbot <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">Recruiter Insights <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">Career Roadmap <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">Resume Builder <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">Cover Letters <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">Resume Parsing <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">ATS Scanner <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">Skill Gap <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">Job Match <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+        <span class="flex items-center gap-3">Mock Interview <i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>
+      </div>
+    </section>
 
-    <footer class="border-t border-white/10 py-8 text-center text-sm opacity-60">
-      © <span id="year"></span> AI Career Mentor · Static preview · Run <code>pnpm dev</code> for the
-      full app
+    <!-- ============================ STATS ============================ -->
+    <section class="mx-auto max-w-7xl px-5 py-20 sm:px-8">
+      <div class="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+        <div class="glass reveal rounded-2xl p-6 text-center">
+          <p class="font-display text-4xl font-bold gradient-text"><span data-count="10">0</span></p>
+          <p class="mt-1 text-sm text-slate-400">AI-powered tools</p>
+        </div>
+        <div class="glass reveal rounded-2xl p-6 text-center">
+          <p class="font-display text-4xl font-bold gradient-text"><span data-count="3">0</span>×</p>
+          <p class="mt-1 text-sm text-slate-400">More interview calls</p>
+        </div>
+        <div class="glass reveal rounded-2xl p-6 text-center">
+          <p class="font-display text-4xl font-bold gradient-text"><span data-count="95">0</span>%</p>
+          <p class="mt-1 text-sm text-slate-400">ATS pass rate</p>
+        </div>
+        <div class="glass reveal rounded-2xl p-6 text-center">
+          <p class="font-display text-4xl font-bold gradient-text">24/7</p>
+          <p class="mt-1 text-sm text-slate-400">Mentor that remembers</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ TOOLS ============================ -->
+    <section id="tools" class="mx-auto max-w-7xl scroll-mt-24 px-5 py-16 sm:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <p class="reveal mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
+          <i data-lucide="layout-grid" class="h-3.5 w-3.5"></i> The toolkit
+        </p>
+        <h2 class="reveal font-display text-3xl font-bold tracking-tight sm:text-5xl">
+          10 AI tools. <span class="gradient-text">One career copilot.</span>
+        </h2>
+        <p class="reveal mt-4 text-slate-400">
+          Every tool shares the same memory of your goals, skills and history — so advice compounds instead of resetting.
+        </p>
+      </div>
+
+      <div id="toolsGrid" class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
+    </section>
+
+    <!-- ============================ HOW IT WORKS ============================ -->
+    <section id="how" class="mx-auto max-w-7xl scroll-mt-24 px-5 py-20 sm:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <h2 class="reveal font-display text-3xl font-bold tracking-tight sm:text-5xl">From upload to offer</h2>
+        <p class="reveal mt-4 text-slate-400">A guided flow, not a pile of disconnected tools.</p>
+      </div>
+
+      <div class="relative mt-16 grid gap-8 md:grid-cols-3">
+        <div class="absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-transparent via-white/15 to-transparent md:block"></div>
+        <div class="reveal relative text-center">
+          <div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl glass text-primary"><i data-lucide="upload-cloud" class="h-6 w-6"></i></div>
+          <p class="mt-2 text-xs font-semibold uppercase tracking-widest text-slate-500">Step 01</p>
+          <h3 class="mt-1 font-display text-xl font-semibold">Upload &amp; parse</h3>
+          <p class="mt-2 text-sm text-slate-400">Drop a PDF/DOCX. We extract structure, score it 0–100 and store it in your memory.</p>
+        </div>
+        <div class="reveal relative text-center">
+          <div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl glass text-primary"><i data-lucide="target" class="h-6 w-6"></i></div>
+          <p class="mt-2 text-xs font-semibold uppercase tracking-widest text-slate-500">Step 02</p>
+          <h3 class="mt-1 font-display text-xl font-semibold">Analyze &amp; improve</h3>
+          <p class="mt-2 text-sm text-slate-400">ATS scan, skill gaps and job matches turn weak spots into a clear, prioritized to-do list.</p>
+        </div>
+        <div class="reveal relative text-center">
+          <div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl glass text-primary"><i data-lucide="rocket" class="h-6 w-6"></i></div>
+          <p class="mt-2 text-xs font-semibold uppercase tracking-widest text-slate-500">Step 03</p>
+          <h3 class="mt-1 font-display text-xl font-semibold">Practice &amp; apply</h3>
+          <p class="mt-2 text-sm text-slate-400">Mock interviews, tailored cover letters and a roadmap keep you moving toward the offer.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ WHY / MEMORY ============================ -->
+    <section id="why" class="mx-auto max-w-7xl scroll-mt-24 px-5 py-20 sm:px-8">
+      <div class="glass relative overflow-hidden rounded-3xl p-8 sm:p-14">
+        <div class="orb-2 !absolute !right-[-160px] !top-[-160px] !opacity-30"></div>
+        <div class="grid items-center gap-10 lg:grid-cols-2">
+          <div>
+            <p class="reveal mb-3 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
+              <i data-lucide="brain-circuit" class="h-3.5 w-3.5"></i> Long-term memory
+            </p>
+            <h2 class="reveal font-display text-3xl font-bold tracking-tight sm:text-4xl">An AI mentor that actually <span class="gradient-text">remembers you</span></h2>
+            <p class="reveal mt-4 text-slate-400">
+              Most tools forget you the moment you close the tab. AI Career Mentor builds a private,
+              evolving profile — your goals, skills, applications and every win — so every answer
+              gets sharper over time.
+            </p>
+            <ul class="mt-6 space-y-3 text-sm">
+              <li class="reveal flex items-start gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-accent"></i> Recalls past resumes, scores and feedback automatically</li>
+              <li class="reveal flex items-start gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-accent"></i> Recommends the single best next action, every session</li>
+              <li class="reveal flex items-start gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-accent"></i> Tracks momentum across all 10 tools in one timeline</li>
+            </ul>
+            <a href="dashboard.html" data-cursor data-magnetic class="btn-primary mt-8 inline-block rounded-xl px-7 py-3 text-sm font-semibold text-white">See it in the dashboard →</a>
+          </div>
+
+          <div class="reveal space-y-3">
+            <div class="glass rounded-2xl p-4">
+              <p class="text-xs text-slate-500">🧠 Remembered</p>
+              <p class="mt-1 text-sm">Goal: <span class="font-semibold text-white">Senior Backend Engineer</span> · Target: <span class="font-semibold text-white">Mar 2026</span></p>
+            </div>
+            <div class="glass rounded-2xl p-4">
+              <p class="text-xs text-slate-500">📈 Progress</p>
+              <p class="mt-1 text-sm">Resume <span class="font-semibold text-emerald-400">+26 pts</span> · 12 applications · 4 interviews</p>
+            </div>
+            <div class="glass rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 p-4">
+              <p class="inline-flex items-center gap-1.5 text-xs text-primary"><i data-lucide="sparkles" class="h-3.5 w-3.5"></i> Suggested now</p>
+              <p class="mt-1 text-sm font-semibold text-white">Practice system-design interview #2 — you scored 71% last time.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ CTA ============================ -->
+    <section class="mx-auto max-w-5xl px-5 py-24 text-center sm:px-8">
+      <h2 class="reveal font-display text-4xl font-bold tracking-tight sm:text-6xl">
+        Ready to land the role <span class="gradient-text">you actually want?</span>
+      </h2>
+      <p class="reveal mx-auto mt-5 max-w-xl text-lg text-slate-400">
+        Join in 30 seconds. Upload your resume and watch your career copilot get to work.
+      </p>
+      <div class="reveal mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <a href="dashboard.html" data-cursor data-magnetic class="btn-primary rounded-xl px-9 py-4 text-base font-semibold text-white">Get started free →</a>
+        <a href="dashboard.html" data-cursor data-magnetic class="glass rounded-xl px-9 py-4 text-base font-semibold text-white transition hover:bg-white/10">View demo dashboard</a>
+      </div>
+    </section>
+
+    <!-- ============================ FOOTER ============================ -->
+    <footer class="border-t border-white/5">
+      <div class="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:grid-cols-2 sm:px-8 lg:grid-cols-4">
+        <div class="sm:col-span-2 lg:col-span-1">
+          <a href="index.html" class="flex items-center gap-2.5 font-bold">
+            <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white"><i data-lucide="sparkles" class="h-5 w-5"></i></span>
+            <span class="font-display text-lg">AI Career Mentor</span>
+          </a>
+          <p class="mt-4 max-w-xs text-sm text-slate-400">Ten AI tools and a mentor that remembers — from first resume to signed offer.</p>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-white">Tools</p>
+          <ul class="mt-3 space-y-2 text-sm text-slate-400">
+            <li><a href="dashboard.html" class="transition hover:text-white">Resume Analyzer</a></li>
+            <li><a href="dashboard.html" class="transition hover:text-white">ATS Scanner</a></li>
+            <li><a href="dashboard.html" class="transition hover:text-white">Mock Interview</a></li>
+            <li><a href="dashboard.html" class="transition hover:text-white">Career Roadmap</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-white">Product</p>
+          <ul class="mt-3 space-y-2 text-sm text-slate-400">
+            <li><a href="#tools" class="transition hover:text-white">All 10 tools</a></li>
+            <li><a href="#how" class="transition hover:text-white">How it works</a></li>
+            <li><a href="dashboard.html" class="transition hover:text-white">Dashboard</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-white">Powered by</p>
+          <ul class="mt-3 space-y-2 text-sm text-slate-400">
+            <li>Claude · GPT · Gemini</li>
+            <li>Next.js · NestJS</li>
+            <li>pgvector memory</li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-white/5 py-6 text-center text-sm text-slate-500">
+        © <span id="year"></span> AI Career Mentor · Static preview · Run <code class="text-slate-400">pnpm dev</code> for the full app
+      </div>
     </footer>
 
+    <!-- ============================ SCRIPTS ============================ -->
     <script>
-      // Theme toggle
-      const themeBtn = document.getElementById('themeBtn');
-      function syncBg() {
-        const dark = document.documentElement.classList.contains('dark');
-        document.body.classList.toggle('bg-slate-950', dark);
-        document.body.classList.toggle('text-slate-100', dark);
-        document.body.classList.toggle('bg-slate-50', !dark);
-        document.body.classList.toggle('text-slate-900', !dark);
-        themeBtn.textContent = dark ? '🌙' : '☀️';
-      }
-      themeBtn.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        syncBg();
-      });
-      syncBg();
-
-      // Feature cards
-      const FEATURES = [
-        ['🔍', 'Resume Analyzer', 'Upload a PDF/DOCX and get a 0–100 score with weak-area fixes.'],
-        ['🛡️', 'ATS Scanner', 'Match against any job description and surface missing keywords.'],
-        ['🎤', 'AI Mock Interview', 'Voice + webcam interviews with real-time evaluation reports.'],
-        ['🤖', 'Career Chatbot', 'A mentor that remembers your goals, skills, and history.'],
-        ['🎯', 'Skill Gap', 'See exactly what to learn and how long it will take.'],
-        ['🗺️', 'Career Roadmap', 'Visual 3/6/12/24-month plans with milestones.'],
+      /* ---------- Tool data ---------- */
+      const TOOLS = [
+        ['file-search',  'Resume Parsing',          'Turn any PDF/DOCX into clean, structured data — contact, experience, skills and education in seconds.'],
+        ['shield-check', 'ATS Scanner',             'Score your resume against any job description and surface the exact keywords applicant-tracking systems want.'],
+        ['target',       'Skill Gap Analysis',      'See precisely which skills you’re missing for a target role — and how long each will take to learn.'],
+        ['briefcase',    'Job Match Engine',        'Get ranked, explainable matches to real roles based on your skills, experience and goals.'],
+        ['mic',          'AI Mock Interview',       'Practice behavioral & technical rounds with voice + webcam, then get a detailed evaluation report.'],
+        ['bot',          'Career Chatbot',          'A 24/7 mentor that remembers your journey and answers anything — strategy, salary, next steps.'],
+        ['eye',          'Recruiter Insights',      'See your profile through a recruiter’s eyes — red flags, strengths and what they’ll ask.'],
+        ['map',          'Career Roadmap',          'A visual 3/6/12/24-month plan with milestones, mapped to where you want to be.'],
+        ['file-pen',     'Resume Builder',          'Build a clean, ATS-friendly resume with AI suggestions and one-click export to PDF.'],
+        ['mail',         'Cover Letter Generator',  'Generate tailored, role-specific cover letters that sound like you — not a template.'],
       ];
-      document.getElementById('features').innerHTML = FEATURES.map(
-        ([icon, title, blurb]) => `
-        <div class="glass rounded-2xl p-6 transition-transform hover:-translate-y-1">
-          <div class="mb-4 text-3xl">${icon}</div>
-          <h3 class="text-lg font-semibold">${title}</h3>
-          <p class="mt-2 text-sm opacity-70">${blurb}</p>
-        </div>`,
-      ).join('');
+
+      const grid = document.getElementById('toolsGrid');
+      grid.innerHTML = TOOLS.map(([icon, title, blurb], i) => `
+        <a href="dashboard.html" data-cursor data-tilt
+           class="tool-card reveal group block rounded-2xl p-6 sm:p-7">
+          <div class="flex items-start justify-between">
+            <span class="tool-icon grid h-12 w-12 place-items-center rounded-xl bg-white/5 text-primary">
+              <i data-lucide="${icon}" class="h-6 w-6"></i>
+            </span>
+            <span class="text-xs font-semibold text-slate-600">${String(i + 1).padStart(2, '0')}</span>
+          </div>
+          <h3 class="mt-5 font-display text-lg font-semibold text-white">${title}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-400">${blurb}</p>
+          <span class="tool-arrow mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+            Open tool <i data-lucide="arrow-right" class="h-4 w-4"></i>
+          </span>
+        </a>`).join('');
 
       document.getElementById('year').textContent = new Date().getFullYear();
+
+      /* ---------- Init after libs load ---------- */
+      window.addEventListener('load', () => {
+        if (window.lucide) lucide.createIcons();
+
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const isTouch = window.matchMedia('(hover: none)').matches;
+
+        /* ----- Custom cursor (desktop) ----- */
+        if (!isTouch) {
+          const dot = document.getElementById('cursorDot');
+          const ring = document.getElementById('cursorRing');
+          let rx = 0, ry = 0, dx = 0, dy = 0;
+          window.addEventListener('mousemove', (e) => {
+            dx = e.clientX; dy = e.clientY;
+            dot.style.transform = `translate(${dx}px, ${dy}px) translate(-50%,-50%)`;
+          });
+          (function loop() {
+            rx += (dx - rx) * 0.18; ry += (dy - ry) * 0.18;
+            ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%,-50%)`;
+            requestAnimationFrame(loop);
+          })();
+          document.querySelectorAll('[data-cursor]').forEach((el) => {
+            el.addEventListener('mouseenter', () => ring.classList.add('is-active'));
+            el.addEventListener('mouseleave', () => ring.classList.remove('is-active'));
+          });
+        }
+
+        /* ----- Magnetic buttons ----- */
+        if (!isTouch && !prefersReduced) {
+          document.querySelectorAll('[data-magnetic]').forEach((el) => {
+            el.addEventListener('mousemove', (e) => {
+              const r = el.getBoundingClientRect();
+              const mx = e.clientX - r.left - r.width / 2;
+              const my = e.clientY - r.top - r.height / 2;
+              el.style.transform = `translate(${mx * 0.25}px, ${my * 0.35}px)`;
+            });
+            el.addEventListener('mouseleave', () => { el.style.transform = 'translate(0,0)'; });
+          });
+        }
+
+        /* ----- 3D tilt + glow on tool cards ----- */
+        if (!isTouch && !prefersReduced) {
+          document.querySelectorAll('[data-tilt]').forEach((card) => {
+            card.addEventListener('mousemove', (e) => {
+              const r = card.getBoundingClientRect();
+              const px = (e.clientX - r.left) / r.width;
+              const py = (e.clientY - r.top) / r.height;
+              card.style.setProperty('--mx', `${px * 100}%`);
+              card.style.setProperty('--my', `${py * 100}%`);
+              const rotX = (0.5 - py) * 10;
+              const rotY = (px - 0.5) * 12;
+              card.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-4px)`;
+            });
+            card.addEventListener('mouseleave', () => {
+              card.style.transform = 'perspective(900px) rotateX(0) rotateY(0) translateY(0)';
+            });
+          });
+        }
+
+        /* ----- Nav background on scroll ----- */
+        const nav = document.getElementById('nav');
+        const onScroll = () => {
+          nav.classList.toggle('glass', window.scrollY > 12);
+          nav.classList.toggle('shadow-lg', window.scrollY > 12);
+        };
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+
+        /* ----- GSAP animations ----- */
+        if (window.gsap && !prefersReduced) {
+          document.documentElement.classList.add('gsap-ready');
+          gsap.registerPlugin(ScrollTrigger);
+
+          // Hero entrance
+          gsap.set('[data-hero]', { opacity: 0, y: 30 });
+          gsap.to('[data-hero]', {
+            opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', stagger: 0.12, delay: 0.15,
+          });
+
+          // Floating preview
+          gsap.to('[data-float]', { y: -14, duration: 3, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+
+          // Drifting orbs
+          gsap.to('.orb-1', { x: 60, y: 40, duration: 12, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+          gsap.to('.orb-2', { x: -50, y: 60, duration: 14, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+          gsap.to('.orb-3', { x: 40, y: -40, duration: 16, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+
+          // Scroll reveals (batched, staggered)
+          ScrollTrigger.batch('.reveal', {
+            start: 'top 88%',
+            onEnter: (els) => gsap.to(els, {
+              opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', stagger: 0.08, overwrite: true,
+            }),
+            once: true,
+          });
+
+          // Animated counters
+          document.querySelectorAll('[data-count]').forEach((el) => {
+            const end = +el.getAttribute('data-count');
+            const obj = { v: 0 };
+            ScrollTrigger.create({
+              trigger: el, start: 'top 92%', once: true,
+              onEnter: () => gsap.to(obj, {
+                v: end, duration: 1.6, ease: 'power2.out',
+                onUpdate: () => { el.textContent = Math.round(obj.v); },
+              }),
+            });
+          });
+
+          // Scroll progress bar
+          gsap.to('#scrollBar', {
+            scaleX: 1, ease: 'none',
+            scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 0.3 },
+          });
+        } else {
+          // No GSAP / reduced motion → just reveal everything
+          document.querySelectorAll('.reveal').forEach((el) => {
+            el.style.opacity = 1; el.style.transform = 'none';
+          });
+          document.querySelectorAll('[data-count]').forEach((el) => {
+            el.textContent = el.getAttribute('data-count');
+          });
+        }
+      });
     </script>
   </body>
 </html>
