@@ -53,7 +53,7 @@
       .pill:hover { border-color: hsla(250,84%,62%,.5); color: #fff; background: var(--surface-2); }
 
       /* rotating word */
-      .rotate-word { display: inline-block; transition: opacity .25s ease, transform .25s ease; }
+      .rotate-word { display: inline-block; will-change: opacity, transform, filter; transition: opacity .28s ease, transform .28s cubic-bezier(.2,.8,.2,1), filter .28s ease; }
 
       .marquee { display: flex; gap: 3rem; width: max-content; animation: marquee 28s linear infinite; }
       @keyframes marquee { to { transform: translateX(-50%); } }
@@ -76,9 +76,7 @@
 
   <body class="min-h-screen antialiased">
     <div class="grid-bg"></div>
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
+    <div class="orb-layer"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
 
     <div class="fixed inset-x-0 top-0 z-[60] h-0.5"><div class="scroll-progress h-full bg-gradient-to-r from-primary to-accent" id="scrollBar"></div></div>
 
@@ -124,8 +122,8 @@
           </div>
 
           <h1 data-hero class="font-display text-[2.6rem] font-extrabold leading-[1.12] tracking-tight sm:text-6xl">
-            Your career, guided by an AI<br class="hidden sm:block" /> that
-            <span class="gradient-text rotate-word" id="rotateWord">remembers you</span>
+            Your career, guided by an AI<br class="hidden sm:block" />
+            <span class="sm:whitespace-nowrap">that <span class="gradient-text rotate-word" id="rotateWord">remembers you</span></span>
           </h1>
 
           <p data-hero class="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-slate-400 lg:mx-0">
@@ -181,7 +179,6 @@
               </div>
             </div>
           </div>
-          <div class="glass absolute -bottom-5 -left-3 hidden items-center gap-2 rounded-xl px-3 py-2 text-xs shadow-xl sm:flex"><i data-lucide="trophy" class="h-4 w-4 text-primary"></i> Level 4 · Job Hunter</div>
         </div>
       </div>
     </section>
@@ -338,9 +335,9 @@
         // rotating word
         const rotateEl = document.getElementById('rotateWord');
         if (rotateEl && !reduced) {
-          const words = ['remembers you', 'mentors you', 'coaches you', 'champions you'];
+          const words = ['remembers you', 'mentors you', 'coaches you', 'elevates you'];
           let wi = 0;
-          setInterval(() => { wi = (wi + 1) % words.length; rotateEl.style.opacity = '0'; rotateEl.style.transform = 'translateY(8px)'; setTimeout(() => { rotateEl.textContent = words[wi]; rotateEl.style.opacity = '1'; rotateEl.style.transform = 'none'; }, 250); }, 2200);
+          setInterval(() => { wi = (wi + 1) % words.length; rotateEl.style.opacity = '0'; rotateEl.style.transform = 'translateY(10px)'; rotateEl.style.filter = 'blur(6px)'; setTimeout(() => { rotateEl.textContent = words[wi]; rotateEl.style.opacity = '1'; rotateEl.style.transform = 'none'; rotateEl.style.filter = 'none'; }, 280); }, 2200);
         }
 
         if (window.gsap && !reduced) {
