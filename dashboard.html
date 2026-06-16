@@ -56,7 +56,21 @@
 
       .view-enter { animation: viewIn .4s cubic-bezier(.2,.8,.2,1) both; }
       @keyframes viewIn { from { opacity: 0; transform: translateY(12px); } }
-      @media (prefers-reduced-motion: reduce) { .view-enter, .toast, .modal-card { animation: none !important; } }
+
+      /* command palette */
+      .cmdk-card { animation: modalIn .2s cubic-bezier(.2,.8,.2,1) both; }
+      .cmdk-item { transition: background-color .12s ease; cursor: pointer; }
+      .cmdk-item.active, .cmdk-item:hover { background: var(--surface-2); }
+      .cmdk-item.active { box-shadow: inset 2px 0 0 hsl(var(--primary)); }
+
+      /* readiness gauge ring */
+      .ring-track { stroke: var(--surface-2); }
+      .ring-bar { transition: stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1); }
+
+      /* confetti pieces use the Web Animations API (added/removed in JS) */
+      .confetti-piece { position: fixed; top: -12px; will-change: transform; border-radius: 2px; z-index: 120; pointer-events: none; }
+
+      @media (prefers-reduced-motion: reduce) { .view-enter, .toast, .modal-card, .cmdk-card { animation: none !important; } .ring-bar { transition: none !important; } }
     </style>
   </head>
 
@@ -86,14 +100,14 @@
       <!-- ===================== Main ===================== -->
       <div class="flex min-h-screen flex-1 flex-col px-4 pb-12 pt-4 sm:px-6">
         <!-- Topbar -->
-        <header class="glass relative mb-6 flex h-14 items-center justify-between gap-3 rounded-2xl px-3 sm:px-4">
+        <header class="glass relative z-20 mb-6 flex h-14 items-center justify-between gap-3 rounded-2xl px-3 sm:px-4">
           <div class="flex flex-1 items-center gap-2">
             <button id="menuBtn" class="theme-toggle lg:hidden" aria-label="Open menu"><i data-lucide="menu" class="h-5 w-5"></i></button>
-            <div class="relative max-w-md flex-1">
-              <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"></i>
-              <input id="search" type="text" autocomplete="off" placeholder="Search tools…  (press /)" class="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-9 pr-3 text-sm outline-none transition placeholder:text-slate-500 focus:border-primary/60 focus:bg-white/10" />
-              <div id="searchResults" class="absolute left-0 right-0 top-12 z-30 hidden overflow-hidden rounded-xl border border-white/10 bg-ink/95 p-1.5 shadow-2xl backdrop-blur"></div>
-            </div>
+            <button id="cmdkOpen" type="button" class="group flex max-w-md flex-1 items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-500 transition hover:border-primary/50 hover:bg-white/10">
+              <i data-lucide="search" class="h-4 w-4"></i>
+              <span class="flex-1 truncate text-left">Search tools &amp; actions…</span>
+              <kbd class="hidden items-center rounded border border-white/15 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-slate-400 sm:inline-flex">⌘K</kbd>
+            </button>
           </div>
           <div class="flex items-center gap-2">
             <button data-theme-toggle class="theme-toggle" type="button" aria-label="Toggle theme"></button>
@@ -119,6 +133,23 @@
 
     <div id="toasts"></div>
     <div id="modalRoot" class="fixed inset-0 z-[90] hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm"></div>
+
+    <!-- ⌘K command palette -->
+    <div id="cmdk" class="fixed inset-0 z-[95] hidden items-start justify-center bg-black/60 p-4 pt-[14vh] backdrop-blur-sm">
+      <div class="cmdk-card glass w-full max-w-xl overflow-hidden rounded-2xl shadow-2xl">
+        <div class="flex items-center gap-3 border-b border-white/10 px-4">
+          <i data-lucide="search" class="h-4 w-4 shrink-0 text-slate-400"></i>
+          <input id="cmdkInput" autocomplete="off" placeholder="Search tools &amp; actions…" class="w-full bg-transparent py-3.5 text-sm outline-none placeholder:text-slate-500" />
+          <kbd class="rounded border border-white/15 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-slate-400">esc</kbd>
+        </div>
+        <div id="cmdkList" class="max-h-80 overflow-y-auto p-2"></div>
+        <div class="flex items-center gap-4 border-t border-white/10 px-4 py-2 text-[11px] text-slate-500">
+          <span class="inline-flex items-center gap-1"><kbd class="rounded border border-white/15 px-1">↑↓</kbd> navigate</span>
+          <span class="inline-flex items-center gap-1"><kbd class="rounded border border-white/15 px-1">⏎</kbd> open</span>
+          <span class="inline-flex items-center gap-1"><kbd class="rounded border border-white/15 px-1">esc</kbd> close</span>
+        </div>
+      </div>
+    </div>
 
     <script>
       /* ============================ DATA ============================ */
@@ -164,7 +195,7 @@
       }
       function closeModal() { const root = $('#modalRoot'); root.classList.add('hidden'); root.classList.remove('flex'); root.innerHTML = ''; }
       $('#modalRoot').addEventListener('click', (e) => { if (e.target.id === 'modalRoot') closeModal(); });
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeAllPanels(); } });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeCmdk(); closeAllPanels(); } });
 
       function runProgress(barEl, labelEl, steps, done) {
         let i = 0;
@@ -186,7 +217,30 @@
         render() {
           const stats = [['file-search', 'Resume Score', 84, '+6'], ['shield-check', 'ATS Score', 81, '+4'], ['mic', 'Interview Score', 76, '+9'], ['target', 'Job Match Rate', 68, '+3']];
           const quick = [['mic', 'AI Mock Interview', 'Practice your next round', 'mock-interview'], ['mail', 'Cover Letter', 'Generate one in seconds', 'cover-letter'], ['map', 'Career Roadmap', 'See your 6-month plan', 'roadmap']];
+          const READY = Math.round((84 + 81 + 76 + 68) / 4); // blended readiness
           return `
+            <div class="glass relative mb-6 flex flex-col items-center gap-6 overflow-hidden rounded-2xl p-6 sm:flex-row sm:p-7">
+              <div class="relative grid shrink-0 place-items-center">
+                <svg class="h-32 w-32 -rotate-90" viewBox="0 0 120 120">
+                  <circle class="ring-track" cx="60" cy="60" r="52" fill="none" stroke-width="10" />
+                  <circle data-ring class="ring-bar" cx="60" cy="60" r="52" fill="none" stroke="url(#rg)" stroke-width="10" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327" />
+                  <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(250 84% 62%)" /><stop offset="1" stop-color="hsl(190 95% 55%)" /></linearGradient></defs>
+                </svg>
+                <div class="absolute text-center"><p data-count="${READY}" class="font-display text-4xl font-bold gradient-text">0</p><p class="text-[10px] font-semibold uppercase tracking-widest text-slate-500">ready</p></div>
+              </div>
+              <div class="flex-1 text-center sm:text-left">
+                <p class="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary"><i data-lucide="gauge" class="h-3.5 w-3.5"></i> Career readiness</p>
+                <h3 class="mt-3 font-display text-xl font-bold">You're <span class="gradient-text">${READY}% ready</span> for Senior Backend Engineer</h3>
+                <p class="mt-1 text-sm text-slate-400">A blended signal across your resume, ATS, interview and job-match scores. Close your top skill gap to break 85.</p>
+                <div class="mt-4 flex flex-wrap justify-center gap-2 sm:justify-start">
+                  <span class="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-300">Resume 84</span>
+                  <span class="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-300">ATS 81</span>
+                  <span class="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-300">Interview 76</span>
+                  <span class="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-300">Job match 68</span>
+                  <button data-go="skill-gap" class="rounded-full bg-gradient-to-r from-primary to-accent px-3 py-1 text-xs font-semibold text-white">Close a gap →</button>
+                </div>
+              </div>
+            </div>
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               ${stats.map(([icon, label, val, delta]) => `
                 <div class="glass stat-card rounded-2xl p-5">
@@ -227,7 +281,21 @@
                 </button>`).join('')}
             </div>`;
         },
-        init() { countUp(); drawChart(); },
+        init(root) {
+          countUp();
+          drawChart();
+          const ring = root && root.querySelector('[data-ring]');
+          if (ring) {
+            const C = 327;
+            const ready = +(root.querySelector('[data-count]')?.getAttribute('data-count') || 77);
+            const off = C * (1 - ready / 100);
+            if (window.gsap && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+              gsap.fromTo(ring, { strokeDashoffset: C }, { strokeDashoffset: off, duration: 1.4, ease: 'power2.out' });
+            } else {
+              requestAnimationFrame(() => { ring.style.strokeDashoffset = off; });
+            }
+          }
+        },
       };
 
       function analyzeView({ inputHTML, steps, resultHTML, cta }) {
@@ -375,7 +443,7 @@
                 </div>
                 <button data-go="dashboard" class="btn-primary mt-5 rounded-lg px-6 py-2.5 text-sm font-semibold">Back to dashboard</button>
               </div>`;
-            icons(); toast('Interview evaluated — report saved to memory', 'success');
+            icons(); toast('Interview evaluated — report saved to memory', 'success'); confetti();
           };
           $('[data-next]', root).addEventListener('click', () => { i++; ans.value = ''; if (i >= QS.length) return finish(); qEl.textContent = QS[i]; cEl.textContent = `${i + 1} / ${QS.length}`; });
           $('[data-finish]', root).addEventListener('click', finish);
@@ -452,7 +520,7 @@
         },
         init(root) {
           const total = $$('[data-ms]', root).length;
-          const recount = () => { const done = $$('[data-ms]', root).filter((b) => $('[data-dot]', b).classList.contains('bg-primary')).length; $('[data-pct]', root).textContent = Math.round((done / total) * 100) + '%'; };
+          const recount = () => { const done = $$('[data-ms]', root).filter((b) => $('[data-dot]', b).classList.contains('bg-primary')).length; $('[data-pct]', root).textContent = Math.round((done / total) * 100) + '%'; if (done === total) { toast('Roadmap complete — you’re offer-ready! 🎉', 'success'); confetti(); } };
           $$('[data-ms]', root).forEach((b) => b.addEventListener('click', () => {
             const dot = $('[data-dot]', b), title = $('[data-title]', b);
             const on = dot.classList.toggle('bg-primary');
@@ -652,7 +720,7 @@
       }
 
       /* ============================ TOPBAR ============================ */
-      function closeAllPanels() { ['#searchResults', '#notifPanel', '#avatarPanel'].forEach((s) => $(s)?.classList.add('hidden')); }
+      function closeAllPanels() { ['#notifPanel', '#avatarPanel'].forEach((s) => $(s)?.classList.add('hidden')); }
       function openSidebar() { $('#sidebar').classList.remove('-translate-x-full'); $('#backdrop').classList.remove('hidden'); }
       function closeSidebar() { if (window.innerWidth < 1024) { $('#sidebar').classList.add('-translate-x-full'); $('#backdrop').classList.add('hidden'); } }
 
@@ -678,20 +746,79 @@
           <div class="mt-6 flex items-baseline justify-center gap-1"><span class="font-display text-4xl font-bold">$19</span><span class="text-slate-400">/mo</span></div>
           <div class="mt-5 flex gap-3"><button data-close class="btn-ghost flex-1 rounded-lg py-2.5 text-sm font-semibold">Maybe later</button><button data-choose class="btn-primary flex-1 rounded-lg py-2.5 text-sm font-semibold">Choose Pro</button></div>`);
         $('#modalRoot [data-close]').addEventListener('click', closeModal);
-        $('#modalRoot [data-choose]').addEventListener('click', () => { closeModal(); toast('Welcome to Pro! 🎉 (demo)', 'success'); });
+        $('#modalRoot [data-choose]').addEventListener('click', () => { closeModal(); toast('Welcome to Pro! 🎉 (demo)', 'success'); confetti(); });
       }
 
-      function buildSearch() {
-        const input = $('#search'), panel = $('#searchResults');
-        const render = (q) => {
-          const matches = NAV.filter(([slug, icon, label]) => label.toLowerCase().includes(q.toLowerCase()));
-          panel.innerHTML = (matches.length ? matches : [['', 'search-x', 'No tools found']]).map(([slug, icon, label]) => slug ? `<a href="#${slug}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-200 hover:bg-white/10"><i data-lucide="${icon}" class="h-4 w-4 text-primary"></i>${label}</a>` : `<div class="flex items-center gap-3 px-3 py-2 text-sm text-slate-500"><i data-lucide="search-x" class="h-4 w-4"></i>No tools found</div>`).join('');
-          icons();
-        };
-        input.addEventListener('focus', () => { render(input.value); panel.classList.remove('hidden'); });
-        input.addEventListener('input', () => { render(input.value); panel.classList.remove('hidden'); });
-        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { const first = panel.querySelector('a'); if (first) { location.hash = first.getAttribute('href'); input.blur(); } } });
-        panel.addEventListener('click', () => setTimeout(closeAllPanels, 0));
+      /* ----- ⌘K command palette (search tools + run actions) ----- */
+      const COMMANDS = [
+        ...NAV.map(([slug, icon, label]) => ({ type: 'tool', icon, label, run: () => { location.hash = slug; } })),
+        { type: 'action', icon: 'sun-moon', label: 'Toggle light / dark theme', run: () => window.ACM && window.ACM.toggle() },
+        { type: 'action', icon: 'crown', label: 'Upgrade to Pro', run: () => upgradeModal() },
+        { type: 'action', icon: 'home', label: 'Go to landing page', run: () => { window.location.href = 'index.html'; } },
+        { type: 'action', icon: 'log-out', label: 'Sign out', run: () => { window.location.href = 'index.html'; } },
+      ];
+      let cmdkMatches = [], cmdkActive = 0;
+
+      function renderCmdk(q) {
+        const query = q.trim().toLowerCase();
+        cmdkMatches = COMMANDS.filter((c) => c.label.toLowerCase().includes(query));
+        cmdkActive = 0;
+        const list = $('#cmdkList');
+        if (!cmdkMatches.length) { list.innerHTML = `<div class="px-3 py-6 text-center text-sm text-slate-500">No matches for “${esc(q)}”</div>`; return; }
+        list.innerHTML = cmdkMatches.map((c, i) => `<div class="cmdk-item ${i === 0 ? 'active' : ''} flex items-center gap-3 rounded-lg px-3 py-2.5" data-i="${i}"><span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/5 text-primary"><i data-lucide="${c.icon}" class="h-4 w-4"></i></span><span class="flex-1 text-sm text-slate-200">${c.label}</span><span class="rounded border border-white/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-slate-500">${c.type}</span></div>`).join('');
+        icons();
+      }
+      function highlightCmdk() {
+        $$('#cmdkList .cmdk-item').forEach((el, i) => el.classList.toggle('active', i === cmdkActive));
+        $('#cmdkList .cmdk-item.active')?.scrollIntoView({ block: 'nearest' });
+      }
+      function moveCmdk(d) { if (!cmdkMatches.length) return; cmdkActive = (cmdkActive + d + cmdkMatches.length) % cmdkMatches.length; highlightCmdk(); }
+      function runCmdk(i) { const c = cmdkMatches[i]; if (!c) return; closeCmdk(); c.run(); }
+      function openCmdk() {
+        closeAllPanels();
+        const overlay = $('#cmdk'), input = $('#cmdkInput');
+        overlay.classList.remove('hidden'); overlay.classList.add('flex');
+        input.value = ''; renderCmdk('');
+        setTimeout(() => input.focus(), 30);
+      }
+      function closeCmdk() { const o = $('#cmdk'); o.classList.add('hidden'); o.classList.remove('flex'); }
+      function buildCmdk() {
+        const input = $('#cmdkInput'), list = $('#cmdkList');
+        $('#cmdkOpen').addEventListener('click', openCmdk);
+        input.addEventListener('input', () => renderCmdk(input.value));
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowDown') { e.preventDefault(); moveCmdk(1); }
+          else if (e.key === 'ArrowUp') { e.preventDefault(); moveCmdk(-1); }
+          else if (e.key === 'Enter') { e.preventDefault(); runCmdk(cmdkActive); }
+        });
+        list.addEventListener('click', (e) => { const item = e.target.closest('[data-i]'); if (item) runCmdk(+item.dataset.i); });
+        $('#cmdk').addEventListener('click', (e) => { if (e.target.id === 'cmdk') closeCmdk(); });
+      }
+
+      /* ----- confetti burst (Web Animations API, no library) ----- */
+      function confetti() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const colors = ['#7c6cff', '#22d3ee', '#34d399', '#fbbf24', '#fb7185'];
+        const layer = document.createElement('div');
+        layer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:120;overflow:hidden';
+        document.body.appendChild(layer);
+        for (let i = 0; i < 110; i++) {
+          const p = document.createElement('div');
+          const size = 6 + Math.random() * 8;
+          p.className = 'confetti-piece';
+          p.style.left = Math.random() * 100 + 'vw';
+          p.style.width = size + 'px';
+          p.style.height = size * 0.5 + 'px';
+          p.style.background = colors[i % colors.length];
+          layer.appendChild(p);
+          const driftX = (Math.random() - 0.5) * 260;
+          const rot = (Math.random() * 6 - 3) * 360;
+          p.animate(
+            [{ transform: 'translate(0,-12px) rotate(0deg)', opacity: 1 }, { transform: `translate(${driftX}px, ${window.innerHeight + 60}px) rotate(${rot}deg)`, opacity: 1 }],
+            { duration: 1600 + Math.random() * 1400, easing: 'cubic-bezier(.2,.6,.4,1)', delay: Math.random() * 250, fill: 'forwards' }
+          );
+        }
+        setTimeout(() => layer.remove(), 3400);
       }
 
       /* ============================ DELEGATION ============================ */
@@ -702,20 +829,23 @@
         if (actEl && actEl.dataset.action === 'upgrade') upgradeModal();
       });
       document.addEventListener('click', (e) => {
-        if (!e.target.closest('#search') && !e.target.closest('#searchResults')) $('#searchResults')?.classList.add('hidden');
         if (!e.target.closest('#bellBtn') && !e.target.closest('#notifPanel')) $('#notifPanel')?.classList.add('hidden');
         if (!e.target.closest('#avatarBtn') && !e.target.closest('#avatarPanel')) $('#avatarPanel')?.classList.add('hidden');
       });
 
       /* ============================ BOOT ============================ */
       function boot() {
-        renderNav(); buildNotifs(); buildAvatar(); buildSearch(); icons();
+        renderNav(); buildNotifs(); buildAvatar(); buildCmdk(); icons();
         $('#menuBtn').addEventListener('click', openSidebar);
         $('#backdrop').addEventListener('click', closeSidebar);
         $('#bellBtn').addEventListener('click', (e) => { e.stopPropagation(); const p = $('#notifPanel'); const willOpen = p.classList.contains('hidden'); closeAllPanels(); p.classList.toggle('hidden', !willOpen); });
         $('#avatarBtn').addEventListener('click', (e) => { e.stopPropagation(); const p = $('#avatarPanel'); const willOpen = p.classList.contains('hidden'); closeAllPanels(); p.classList.toggle('hidden', !willOpen); });
-        document.addEventListener('keydown', (e) => { if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') { e.preventDefault(); $('#search').focus(); } });
-        window.addEventListener('acm:themechange', () => route());
+        document.addEventListener('keydown', (e) => {
+          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openCmdk(); return; }
+          if (e.key === '/' && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); openCmdk(); }
+        });
+        // re-render current view on theme change so inline colors + chart adapt, and confirm with a toast
+        window.addEventListener('acm:themechange', (e) => { route(); toast(((e.detail && e.detail.theme) === 'light' ? 'Light' : 'Dark') + ' mode on', 'info'); });
         window.addEventListener('hashchange', route);
         route();
       }

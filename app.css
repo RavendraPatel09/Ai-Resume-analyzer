@@ -10,28 +10,33 @@ html.dark {
   --primary: 250 84% 62%;
   --accent: 190 95% 55%;
 
-  --bg: #0a0a0f;
-  --fg: #e7e8ee;
+  /* a touch lighter than near-black — a soft slate-navy with subtle depth */
+  --bg: #14161f;
+  --bg-grad-1: #181b27;
+  --bg-grad-2: #11131b;
+  --fg: #e8e9f0;
 
-  --card: rgba(255, 255, 255, 0.035);
-  --card-border: rgba(255, 255, 255, 0.08);
-  --card-shadow: 0 18px 50px -28px rgba(0, 0, 0, 0.7);
+  --card: rgba(255, 255, 255, 0.05);
+  --card-border: rgba(255, 255, 255, 0.10);
+  --card-shadow: 0 18px 50px -28px rgba(0, 0, 0, 0.6);
 
-  --surface: rgba(255, 255, 255, 0.05);
-  --surface-2: rgba(255, 255, 255, 0.10);
-  --border: rgba(255, 255, 255, 0.10);
-  --border-soft: rgba(255, 255, 255, 0.05);
-  --panel: rgba(12, 12, 18, 0.96);
-  --grid-line: rgba(255, 255, 255, 0.04);
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-2: rgba(255, 255, 255, 0.11);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-soft: rgba(255, 255, 255, 0.06);
+  --panel: rgba(26, 29, 40, 0.97);
+  --grid-line: rgba(255, 255, 255, 0.045);
 
-  --orb-1: hsla(250, 84%, 62%, 0.55);
-  --orb-2: hsla(190, 95%, 55%, 0.45);
-  --orb-3: hsla(280, 80%, 60%, 0.30);
+  --orb-1: hsla(250, 84%, 62%, 0.5);
+  --orb-2: hsla(190, 95%, 55%, 0.42);
+  --orb-3: hsla(280, 80%, 60%, 0.28);
   --orb-opacity: 0.5;
 }
 
 html.light {
   --bg: #f3f5fb;
+  --bg-grad-1: #f8f9fe;
+  --bg-grad-2: #eef1fa;
   --fg: #0f172a;
 
   --card: rgba(255, 255, 255, 0.75);
@@ -56,7 +61,9 @@ html.light {
 html { scroll-behavior: smooth; }
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: linear-gradient(180deg, var(--bg-grad-1), var(--bg-grad-2));
+  background-attachment: fixed;
   color: var(--fg);
   overflow-x: hidden;
   transition: background-color .4s ease, color .4s ease;
