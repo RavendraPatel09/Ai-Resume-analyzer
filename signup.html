@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
-      (function () { try { var t = localStorage.getItem('acm-theme') || 'dark'; var e = document.documentElement; e.classList.remove('light', 'dark'); e.classList.add(t); } catch (_) { document.documentElement.classList.add('dark'); } })();
+      (function () { try { var t = localStorage.getItem('acm-theme') || 'dark'; var e = document.documentElement; e.classList.remove('light', 'dark'); e.classList.add(t); } catch (_) { document.documentElement.classList.add('dark'); }
+        try { if (localStorage.getItem('acm-auth')) location.replace('index.html'); } catch (_) {} })();
     </script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c6cff'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M16 7l2.2 5.3L24 14l-5.3 2.2L16 21l-2.2-5.3L8 14z' fill='white'/%3E%3C/svg%3E" />
     <title>Create your account · AI Career Mentor</title>
@@ -24,8 +25,9 @@
     <style>
       .field { transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease; }
       .field:focus { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsla(250,84%,62%,.18); }
-      .oauth:hover { background: var(--surface-2); transform: translateY(-1px); }
-      .oauth { transition: background-color .2s, transform .15s; }
+      .field.invalid { border-color: #fb7185; box-shadow: 0 0 0 3px rgba(251,113,133,.18); }
+      .oauth { transition: background-color .2s, box-shadow .25s; }
+      .oauth:hover { background: var(--surface-2); box-shadow: 0 0 0 1px hsla(250,84%,62%,.25); }
       .auth-enter { animation: authIn .6s cubic-bezier(.2,.8,.2,1) both; }
       @keyframes authIn { from { opacity: 0; transform: translateY(18px); } }
       .bar { height: 4px; border-radius: 9999px; background: var(--surface-2); overflow: hidden; }
@@ -42,7 +44,7 @@
       <!-- Brand panel (desktop) -->
       <aside class="relative hidden overflow-hidden p-12 lg:flex lg:flex-col lg:justify-between">
         <div class="absolute inset-0 -z-10 bg-gradient-to-br from-primary/20 via-transparent to-accent/15"></div>
-        <a href="index.html" class="flex items-center gap-2.5 font-bold">
+        <a href="login.html" class="flex items-center gap-2.5 font-bold">
           <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white"><i data-lucide="sparkles" class="h-5 w-5"></i></span>
           <span class="font-display text-lg">AI Career Mentor</span>
         </a>
@@ -52,7 +54,7 @@
           <ul class="mt-8 space-y-3 text-sm">
             <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="h-5 w-5 text-accent"></i> Free resume score &amp; ATS scan</li>
             <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="h-5 w-5 text-accent"></i> AI mock interviews with feedback</li>
-            <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="h-5 w-5 text-accent"></i> A mentor that remembers your journey</li>
+            <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="h-5 w-5 text-accent"></i> Streaks, XP &amp; badges as you progress</li>
           </ul>
         </div>
         <p class="text-xs text-slate-500">© <span class="year"></span> AI Career Mentor</p>
@@ -62,11 +64,11 @@
       <main class="flex items-center justify-center p-5 sm:p-8">
         <div class="w-full max-w-md auth-enter">
           <div class="mb-6 flex items-center justify-between">
-            <a href="index.html" class="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"><i data-lucide="arrow-left" class="h-4 w-4"></i> Back to home</a>
+            <a href="login.html" class="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"><i data-lucide="arrow-left" class="h-4 w-4"></i> Back to sign in</a>
             <button data-theme-toggle class="theme-toggle" type="button" aria-label="Toggle theme"></button>
           </div>
 
-          <div class="glass rounded-3xl p-7 sm:p-9">
+          <div id="card" class="glass rounded-3xl p-7 sm:p-9">
             <div class="lg:hidden mb-6 flex items-center gap-2.5 font-bold">
               <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white"><i data-lucide="sparkles" class="h-5 w-5"></i></span>
               <span class="font-display text-lg">AI Career Mentor</span>
@@ -114,9 +116,16 @@
 
             <p class="mt-6 text-center text-sm text-slate-400">Already have an account? <a href="login.html" class="font-semibold text-primary hover:underline">Sign in</a></p>
           </div>
-          <p class="mt-5 text-center text-xs text-slate-500">Static preview · submitting takes you to the demo dashboard.</p>
         </div>
       </main>
+    </div>
+
+    <!-- loading overlay -->
+    <div id="loader" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/55 backdrop-blur-sm">
+      <div class="glass flex flex-col items-center gap-4 rounded-2xl px-12 py-9">
+        <div class="spinner"></div>
+        <p class="text-sm font-medium">Setting up your workspace…</p>
+      </div>
     </div>
 
     <script>
@@ -124,45 +133,54 @@
       window.addEventListener('load', () => {
         if (window.lucide) lucide.createIcons();
 
-        const toggle = document.querySelector('[data-toggle-pw]');
         const pw = document.getElementById('password');
+        const toggle = document.querySelector('[data-toggle-pw]');
         toggle.addEventListener('click', () => {
           const show = pw.type === 'password';
           pw.type = show ? 'text' : 'password';
           toggle.innerHTML = show ? '<i data-lucide="eye-off" class="h-4 w-4"></i>' : '<i data-lucide="eye" class="h-4 w-4"></i>';
-          toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
           if (window.lucide) lucide.createIcons();
         });
 
-        // password strength meter
         const bar = document.getElementById('pwBar');
         pw.addEventListener('input', () => {
-          const v = pw.value;
-          let s = 0;
+          const v = pw.value; let s = 0;
           if (v.length >= 8) s++;
           if (/[A-Z]/.test(v) && /[a-z]/.test(v)) s++;
           if (/\d/.test(v)) s++;
           if (/[^A-Za-z0-9]/.test(v)) s++;
-          const pct = [0, 30, 55, 80, 100][s];
-          const color = s <= 1 ? '#fb7185' : s === 2 ? '#fbbf24' : s === 3 ? '#38bdf8' : '#34d399';
-          bar.style.width = pct + '%';
-          bar.style.background = color;
+          bar.style.width = [0, 30, 55, 80, 100][s] + '%';
+          bar.style.background = s <= 1 ? '#fb7185' : s === 2 ? '#fbbf24' : s === 3 ? '#38bdf8' : '#34d399';
         });
 
         const form = document.getElementById('authForm');
         const err = document.getElementById('formError');
+        const card = document.getElementById('card');
+        const name = document.getElementById('name'), email = document.getElementById('email');
+        const fail = (msg, fields) => {
+          err.textContent = msg; err.classList.remove('hidden');
+          card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+          (fields || []).forEach((f) => f.classList.add('invalid'));
+        };
+        [name, email, pw].forEach((f) => f.addEventListener('input', () => f.classList.remove('invalid')));
+
         form.addEventListener('submit', (e) => {
           e.preventDefault();
-          const name = document.getElementById('name').value.trim();
-          const email = document.getElementById('email').value.trim();
-          if (!name || !email || !pw.value) { err.textContent = 'Please fill in all fields.'; err.classList.remove('hidden'); return; }
-          if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = 'That email doesn’t look right.'; err.classList.remove('hidden'); return; }
-          if (pw.value.length < 8) { err.textContent = 'Password must be at least 8 characters.'; err.classList.remove('hidden'); return; }
-          if (!document.getElementById('terms').checked) { err.textContent = 'Please accept the Terms to continue.'; err.classList.remove('hidden'); return; }
+          const nm = name.value.trim(), em = email.value.trim();
+          if (!nm) return fail('Please tell us your name.', [name]);
+          if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return fail('That email doesn’t look right.', [email]);
+          if (pw.value.length < 8) return fail('Password must be at least 8 characters.', [pw]);
+          if (!document.getElementById('terms').checked) return fail('Please accept the Terms to continue.');
           err.classList.add('hidden');
-          const btn = form.querySelector('button[type="submit"]');
-          btn.textContent = 'Creating account…';
-          setTimeout(() => { window.location.href = 'dashboard.html'; }, 600);
+          try {
+            const users = JSON.parse(localStorage.getItem('acm-users') || '[]');
+            if (!users.some((u) => u.email === em)) users.push({ name: nm, email: em, password: pw.value });
+            localStorage.setItem('acm-users', JSON.stringify(users));
+            localStorage.setItem('acm-auth', JSON.stringify({ name: nm, email: em }));
+          } catch (_) {}
+          const loader = document.getElementById('loader');
+          loader.classList.remove('hidden'); loader.classList.add('flex');
+          setTimeout(() => { window.location.href = 'index.html'; }, 1100);
         });
       });
     </script>

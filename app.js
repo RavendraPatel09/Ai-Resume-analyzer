@@ -46,17 +46,27 @@
     refreshToggleUI(current());
   }
 
-  function initMagnetic() {
-    if (touch || reduced) return;
-    document.querySelectorAll('[data-magnetic]').forEach(function (el) {
-      el.addEventListener('mousemove', function (e) {
-        var r = el.getBoundingClientRect();
-        var mx = e.clientX - r.left - r.width / 2;
-        var my = e.clientY - r.top - r.height / 2;
-        el.style.transform = 'translate(' + mx * 0.22 + 'px,' + my * 0.32 + 'px)';
-      });
-      el.addEventListener('mouseleave', function () { el.style.transform = 'translate(0,0)'; });
+  /* Smooth page transitions — fade the page out before navigating to another
+     .html page in the app, and (via CSS) fade in on arrival. */
+  function initPageTransitions() {
+    var fx = document.createElement('div');
+    fx.id = 'pagefx';
+    document.body.appendChild(fx);
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a');
+      if (!a) return;
+      var href = a.getAttribute('href');
+      if (!href || href.charAt(0) === '#' || a.target === '_blank') return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (!/\.html(\?|#|$)/.test(href)) return;
+      if (a.origin && a.origin !== location.origin) return;
+      e.preventDefault();
+      if (reduced) { location.href = href; return; }
+      fx.classList.add('show');
+      setTimeout(function () { location.href = href; }, 250);
     });
+    // if restored from bfcache, make sure the overlay is hidden
+    window.addEventListener('pageshow', function () { fx.classList.remove('show'); });
   }
 
   function initTilt() {
@@ -77,11 +87,11 @@
   }
 
   // expose for pages that re-render dynamic content (e.g. dashboard tool cards)
-  window.ACM = { apply: apply, current: current, toggle: toggle, initMagnetic: initMagnetic, initTilt: initTilt };
+  window.ACM = { apply: apply, current: current, toggle: toggle, initTilt: initTilt };
 
   window.addEventListener('load', function () {
     initToggles();
-    initMagnetic();
     initTilt();
+    initPageTransitions();
   });
 })();

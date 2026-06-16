@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
-      (function () { try { var t = localStorage.getItem('acm-theme') || 'dark'; var e = document.documentElement; e.classList.remove('light', 'dark'); e.classList.add(t); } catch (_) { document.documentElement.classList.add('dark'); } })();
+      (function () {
+        try { var t = localStorage.getItem('acm-theme') || 'dark'; var e = document.documentElement; e.classList.remove('light', 'dark'); e.classList.add(t); } catch (_) { document.documentElement.classList.add('dark'); }
+        try { if (!localStorage.getItem('acm-auth')) location.replace('login.html'); } catch (_) {}
+      })();
     </script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c6cff'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M16 7l2.2 5.3L24 14l-5.3 2.2L16 21l-2.2-5.3L8 14z' fill='white'/%3E%3C/svg%3E" />
     <title>Dashboard · AI Career Mentor</title>
@@ -163,7 +166,13 @@
         ['progress', 'trending-up', 'Progress'], ['settings', 'settings', 'Settings'], ['admin', 'shield', 'Admin'],
       ];
       const META = Object.fromEntries(NAV.map(([slug, icon, label]) => [slug, { icon, label }]));
-      const USER = { name: 'Alex Morgan', email: 'alex@example.com', first: 'Alex', initial: 'A' };
+      const USER = (function () {
+        let d = { name: 'Alex Morgan', email: 'abc@gmail.com' };
+        try { const a = JSON.parse(localStorage.getItem('acm-auth') || 'null'); if (a && a.email) d = { name: a.name || 'Alex Morgan', email: a.email }; } catch (_) {}
+        d.first = (d.name || 'there').split(' ')[0];
+        d.initial = (d.name || 'A').charAt(0).toUpperCase();
+        return d;
+      })();
 
       /* ============================ HELPERS ============================ */
       const $ = (sel, root = document) => root.querySelector(sel);
@@ -252,6 +261,25 @@
                   <p class="text-sm text-slate-400">${label}</p>
                 </div>`).join('')}
             </div>
+
+            <div class="mt-6 glass rounded-2xl p-6">
+              <div class="flex flex-wrap items-center justify-between gap-5">
+                <div class="flex items-center gap-4">
+                  <span class="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent font-display text-base font-bold text-white">L4</span>
+                  <div>
+                    <p class="font-display font-semibold">Level 4 · Job Hunter</p>
+                    <p class="text-xs text-slate-500">1,240 / 1,600 XP to Level 5</p>
+                    <div class="mt-2 h-2 w-48 overflow-hidden rounded-full bg-white/10"><div data-xp class="h-full rounded-full bg-gradient-to-r from-primary to-accent" style="width:0%;transition:width 1.2s cubic-bezier(.2,.8,.2,1)"></div></div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-6">
+                  <div class="text-center"><p class="font-display text-2xl font-bold text-primary"><span data-count="9">0</span>🔥</p><p class="text-xs text-slate-500">day streak</p></div>
+                  <div class="text-center"><p class="font-display text-2xl font-bold gradient-text"><span data-count="1240">0</span></p><p class="text-xs text-slate-500">total XP</p></div>
+                  <div class="text-center"><p class="font-display text-2xl font-bold gradient-text"><span data-count="6">0</span></p><p class="text-xs text-slate-500">badges</p></div>
+                </div>
+              </div>
+            </div>
+
             <div class="mt-6 grid gap-6 lg:grid-cols-3">
               <div class="glass rounded-2xl p-6 lg:col-span-2">
                 <h3 class="font-display font-semibold">Score progression</h3>
@@ -295,6 +323,8 @@
               requestAnimationFrame(() => { ring.style.strokeDashoffset = off; });
             }
           }
+          const xp = root && root.querySelector('[data-xp]');
+          if (xp) requestAnimationFrame(() => { xp.style.width = Math.round((1240 / 1600) * 100) + '%'; });
         },
       };
 
@@ -621,11 +651,30 @@
       };
 
       VIEWS['progress'] = {
+        subtitle: 'Your momentum, visualized.',
         render() {
-          return `<div class="grid gap-6 lg:grid-cols-3">
-            <div class="glass rounded-2xl p-6 lg:col-span-2"><h3 class="font-display font-semibold">All scores over time</h3><div class="mt-4 h-72"><canvas id="chart"></canvas></div></div>
-            <div class="space-y-4">${[['Applications', 12, 'briefcase'], ['Interviews', 4, 'mic'], ['Day streak', 9, 'flame']].map(([l, v, ic]) => `<div class="glass stat-card rounded-2xl p-5"><div class="flex items-center justify-between"><span class="text-sm text-slate-400">${l}</span><i data-lucide="${ic}" class="h-4 w-4 text-primary"></i></div><p class="mt-2 font-display text-3xl font-bold gradient-text" data-count="${v}">0</p></div>`).join('')}</div>
-          </div>`;
+          const side = [['Applications', 12, 'briefcase'], ['Interviews', 4, 'mic'], ['Day streak', 9, 'flame']];
+          const opac = [0.06, 0.28, 0.5, 0.72, 1], WEEKS = 18;
+          let cells = '';
+          for (let w = 0; w < WEEKS; w++) for (let d = 0; d < 7; d++) { const i = w * 7 + d; const lvl = Math.floor(Math.abs(Math.sin(i * 12.9898)) * 5) % 5; cells += `<span class="h-3 w-3 rounded-[3px]" title="${lvl * 2} activities" style="background:hsla(250,84%,62%,${opac[lvl]})"></span>`; }
+          const legend = opac.map((o) => `<span class="h-3 w-3 rounded-[3px]" style="background:hsla(250,84%,62%,${o})"></span>`).join('');
+          const badges = [['trophy', 'First resume', true], ['flame', '7-day streak', true], ['shield-check', 'ATS 80+', true], ['mic', '5 interviews', true], ['target', 'Skill master', false], ['crown', 'Pro member', false]];
+          return `
+            <div class="grid gap-6 lg:grid-cols-3">
+              <div class="glass rounded-2xl p-6 lg:col-span-2"><h3 class="font-display font-semibold">All scores over time</h3><div class="mt-4 h-64"><canvas id="chart"></canvas></div></div>
+              <div class="space-y-4">${side.map(([l, v, ic]) => `<div class="glass stat-card rounded-2xl p-5"><div class="flex items-center justify-between"><span class="text-sm text-slate-400">${l}</span><i data-lucide="${ic}" class="h-4 w-4 text-primary"></i></div><p class="mt-2 font-display text-3xl font-bold gradient-text" data-count="${v}">0</p></div>`).join('')}</div>
+            </div>
+            <div class="glass mt-6 rounded-2xl p-6">
+              <div class="flex items-center justify-between"><h3 class="font-display font-semibold">Activity heatmap</h3><span class="text-xs text-slate-500">last 18 weeks</span></div>
+              <div class="mt-4 overflow-x-auto pb-1"><div class="grid w-max grid-flow-col grid-rows-7 gap-1">${cells}</div></div>
+              <div class="mt-3 flex items-center justify-end gap-1 text-xs text-slate-500">Less ${legend} More</div>
+            </div>
+            <div class="glass mt-6 rounded-2xl p-6">
+              <h3 class="font-display font-semibold">Badges <span class="text-sm font-normal text-slate-500">· 4 of 6 earned</span></h3>
+              <div class="mt-5 grid grid-cols-3 gap-4 sm:grid-cols-6">
+                ${badges.map(([ic, l, earned]) => `<div class="flex flex-col items-center gap-2 text-center ${earned ? '' : 'opacity-45'}"><span class="grid h-14 w-14 place-items-center rounded-2xl ${earned ? 'bg-gradient-to-br from-primary to-accent text-white shadow-lg shadow-primary/30' : 'bg-white/5 text-slate-500'}"><i data-lucide="${earned ? ic : 'lock'}" class="h-6 w-6"></i></span><p class="text-xs">${l}</p></div>`).join('')}
+              </div>
+            </div>`;
         },
         init() { countUp(); drawChart(true); },
       };
@@ -735,7 +784,7 @@
         const items = [['user', 'Profile', 'settings'], ['settings', 'Settings', 'settings'], ['crown', 'Upgrade to Pro', '__upgrade']];
         $('#avatarPanel').innerHTML = `<div class="border-b border-white/10 p-3"><p class="text-sm font-semibold">${USER.name}</p><p class="text-xs text-slate-500">${USER.email}</p></div><div class="p-1">${items.map(([ic, l, go]) => `<button data-go="${go}" class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-200 hover:bg-white/10"><i data-lucide="${ic}" class="h-4 w-4"></i>${l}</button>`).join('')}<button data-signout class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-rose-300 hover:bg-rose-500/10"><i data-lucide="log-out" class="h-4 w-4"></i>Sign out</button></div>`;
         icons();
-        $('#avatarPanel [data-signout]').addEventListener('click', () => { window.location.href = 'index.html'; });
+        $('#avatarPanel [data-signout]').addEventListener('click', () => { try { localStorage.removeItem('acm-auth'); } catch (_) {} window.location.href = 'login.html'; });
       }
 
       function upgradeModal() {
@@ -836,6 +885,7 @@
       /* ============================ BOOT ============================ */
       function boot() {
         renderNav(); buildNotifs(); buildAvatar(); buildCmdk(); icons();
+        $('#avatarBtn').textContent = USER.initial;
         $('#menuBtn').addEventListener('click', openSidebar);
         $('#backdrop').addEventListener('click', closeSidebar);
         $('#bellBtn').addEventListener('click', (e) => { e.stopPropagation(); const p = $('#notifPanel'); const willOpen = p.classList.contains('hidden'); closeAllPanels(); p.classList.toggle('hidden', !willOpen); });

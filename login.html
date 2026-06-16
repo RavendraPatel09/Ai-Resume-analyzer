@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
-      (function () { try { var t = localStorage.getItem('acm-theme') || 'dark'; var e = document.documentElement; e.classList.remove('light', 'dark'); e.classList.add(t); } catch (_) { document.documentElement.classList.add('dark'); } })();
+      (function () { try { var t = localStorage.getItem('acm-theme') || 'dark'; var e = document.documentElement; e.classList.remove('light', 'dark'); e.classList.add(t); } catch (_) { document.documentElement.classList.add('dark'); }
+        // already signed in? skip straight to the app
+        try { if (localStorage.getItem('acm-auth')) location.replace('index.html'); } catch (_) {} })();
     </script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c6cff'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M16 7l2.2 5.3L24 14l-5.3 2.2L16 21l-2.2-5.3L8 14z' fill='white'/%3E%3C/svg%3E" />
     <title>Sign in · AI Career Mentor</title>
@@ -24,8 +26,9 @@
     <style>
       .field { transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease; }
       .field:focus { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsla(250,84%,62%,.18); }
-      .oauth:hover { background: var(--surface-2); transform: translateY(-1px); }
-      .oauth { transition: background-color .2s, transform .15s; }
+      .field.invalid { border-color: #fb7185; box-shadow: 0 0 0 3px rgba(251,113,133,.18); }
+      .oauth { transition: background-color .2s, box-shadow .25s; }
+      .oauth:hover { background: var(--surface-2); box-shadow: 0 0 0 1px hsla(250,84%,62%,.25); }
       .auth-enter { animation: authIn .6s cubic-bezier(.2,.8,.2,1) both; }
       @keyframes authIn { from { opacity: 0; transform: translateY(18px); } }
     </style>
@@ -40,7 +43,7 @@
       <!-- Brand panel (desktop) -->
       <aside class="relative hidden overflow-hidden p-12 lg:flex lg:flex-col lg:justify-between">
         <div class="absolute inset-0 -z-10 bg-gradient-to-br from-primary/20 via-transparent to-accent/15"></div>
-        <a href="index.html" class="flex items-center gap-2.5 font-bold">
+        <a href="login.html" class="flex items-center gap-2.5 font-bold">
           <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white"><i data-lucide="sparkles" class="h-5 w-5"></i></span>
           <span class="font-display text-lg">AI Career Mentor</span>
         </a>
@@ -49,7 +52,7 @@
           <p class="mt-4 text-slate-400">Your resumes, scores, interviews and roadmap are right where you left them — your AI mentor remembers everything.</p>
           <div class="mt-8 space-y-3">
             <div class="glass flex items-center gap-3 rounded-xl p-3 text-sm"><i data-lucide="shield-check" class="h-5 w-5 text-accent"></i> Resume score 84 · ATS 81</div>
-            <div class="glass flex items-center gap-3 rounded-xl p-3 text-sm"><i data-lucide="mic" class="h-5 w-5 text-primary"></i> 4 mock interviews completed</div>
+            <div class="glass flex items-center gap-3 rounded-xl p-3 text-sm"><i data-lucide="flame" class="h-5 w-5 text-primary"></i> 9-day streak · Level 4</div>
           </div>
         </div>
         <p class="text-xs text-slate-500">© <span class="year"></span> AI Career Mentor</p>
@@ -59,11 +62,11 @@
       <main class="flex items-center justify-center p-5 sm:p-8">
         <div class="w-full max-w-md auth-enter">
           <div class="mb-6 flex items-center justify-between">
-            <a href="index.html" class="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"><i data-lucide="arrow-left" class="h-4 w-4"></i> Back to home</a>
+            <span class="text-sm text-slate-500">Sign in to continue</span>
             <button data-theme-toggle class="theme-toggle" type="button" aria-label="Toggle theme"></button>
           </div>
 
-          <div class="glass rounded-3xl p-7 sm:p-9">
+          <div id="card" class="glass rounded-3xl p-7 sm:p-9">
             <div class="lg:hidden mb-6 flex items-center gap-2.5 font-bold">
               <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white"><i data-lucide="sparkles" class="h-5 w-5"></i></span>
               <span class="font-display text-lg">AI Career Mentor</span>
@@ -72,7 +75,12 @@
             <h1 class="font-display text-2xl font-bold">Sign in</h1>
             <p class="mt-1 text-sm text-slate-400">Welcome back — let’s pick up where you left off.</p>
 
-            <div class="mt-6 grid grid-cols-2 gap-3">
+            <div class="mt-5 flex items-start gap-2 rounded-xl border border-primary/30 bg-primary/10 p-3 text-xs text-slate-300">
+              <i data-lucide="info" class="mt-0.5 h-4 w-4 shrink-0 text-primary"></i>
+              <span>Demo account is pre-filled — just press <b class="text-white">Sign in</b>. <span class="text-slate-400">(abc@gmail.com / 12345678)</span></span>
+            </div>
+
+            <div class="mt-5 grid grid-cols-2 gap-3">
               <button type="button" class="oauth glass flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium"><svg class="h-4 w-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.4-1.6 4.1-5.5 4.1-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.9 3.1 14.7 2 12 2 6.9 2 2.8 6.1 2.8 11.2S6.9 20.4 12 20.4c5.9 0 9.8-4.1 9.8-9.9 0-.7-.1-1.2-.2-1.7H12z"/></svg> Google</button>
               <button type="button" class="oauth glass flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium"><i data-lucide="github" class="h-4 w-4"></i> GitHub</button>
             </div>
@@ -84,7 +92,7 @@
                 <label class="mb-1.5 block text-sm font-medium" for="email">Email</label>
                 <div class="relative">
                   <i data-lucide="mail" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"></i>
-                  <input id="email" type="email" required placeholder="you@example.com" class="field w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-3 text-sm outline-none" />
+                  <input id="email" type="email" value="abc@gmail.com" required placeholder="you@example.com" class="field w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-3 text-sm outline-none" />
                 </div>
               </div>
               <div>
@@ -94,50 +102,78 @@
                 </div>
                 <div class="relative">
                   <i data-lucide="lock" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"></i>
-                  <input id="password" type="password" required placeholder="••••••••" class="field w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-10 text-sm outline-none" />
+                  <input id="password" type="password" value="12345678" required placeholder="••••••••" class="field w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-10 text-sm outline-none" />
                   <button type="button" data-toggle-pw class="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-lg text-slate-400 hover:text-white" aria-label="Show password"><i data-lucide="eye" class="h-4 w-4"></i></button>
                 </div>
               </div>
-              <label class="flex items-center gap-2 text-sm text-slate-400"><input type="checkbox" class="h-4 w-4 rounded border-white/20 bg-white/5 accent-[hsl(250_84%_62%)]" /> Keep me signed in</label>
+              <label class="flex items-center gap-2 text-sm text-slate-400"><input type="checkbox" checked class="h-4 w-4 rounded border-white/20 bg-white/5 accent-[hsl(250_84%_62%)]" /> Keep me signed in</label>
               <p id="formError" class="hidden text-sm text-rose-400"></p>
               <button type="submit" class="btn-primary w-full rounded-xl py-3 text-sm font-semibold">Sign in →</button>
             </form>
 
             <p class="mt-6 text-center text-sm text-slate-400">Don’t have an account? <a href="signup.html" class="font-semibold text-primary hover:underline">Sign up free</a></p>
           </div>
-          <p class="mt-5 text-center text-xs text-slate-500">Static preview · submitting takes you to the demo dashboard.</p>
         </div>
       </main>
     </div>
 
+    <!-- loading overlay -->
+    <div id="loader" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/55 backdrop-blur-sm">
+      <div class="glass flex flex-col items-center gap-4 rounded-2xl px-12 py-9">
+        <div class="spinner"></div>
+        <p id="loaderText" class="text-sm font-medium">Signing you in…</p>
+      </div>
+    </div>
+
     <script>
+      const DEMO = { email: 'abc@gmail.com', password: '12345678', name: 'Alex Morgan' };
       document.querySelectorAll('.year').forEach((e) => (e.textContent = new Date().getFullYear()));
+
+      function findUser(email, pass) {
+        if (email === DEMO.email && pass === DEMO.password) return { name: DEMO.name, email: DEMO.email };
+        try {
+          const users = JSON.parse(localStorage.getItem('acm-users') || '[]');
+          const u = users.find((x) => x.email === email && x.password === pass);
+          if (u) return { name: u.name, email: u.email };
+        } catch (_) {}
+        return null;
+      }
+
       window.addEventListener('load', () => {
         if (window.lucide) lucide.createIcons();
 
-        // show / hide password
-        const toggle = document.querySelector('[data-toggle-pw]');
         const pw = document.getElementById('password');
+        const toggle = document.querySelector('[data-toggle-pw]');
         toggle.addEventListener('click', () => {
           const show = pw.type === 'password';
           pw.type = show ? 'text' : 'password';
           toggle.innerHTML = show ? '<i data-lucide="eye-off" class="h-4 w-4"></i>' : '<i data-lucide="eye" class="h-4 w-4"></i>';
-          toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
           if (window.lucide) lucide.createIcons();
         });
 
-        // submit → dashboard (static demo, with light validation)
         const form = document.getElementById('authForm');
         const err = document.getElementById('formError');
+        const card = document.getElementById('card');
+        const email = document.getElementById('email');
+        const fail = (msg) => {
+          err.textContent = msg; err.classList.remove('hidden');
+          card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+          [email, pw].forEach((f) => f.classList.add('invalid'));
+        };
+        [email, pw].forEach((f) => f.addEventListener('input', () => f.classList.remove('invalid')));
+
         form.addEventListener('submit', (e) => {
           e.preventDefault();
-          const email = document.getElementById('email').value.trim();
-          if (!email || !pw.value) { err.textContent = 'Please enter your email and password.'; err.classList.remove('hidden'); return; }
-          if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = 'That email doesn’t look right.'; err.classList.remove('hidden'); return; }
+          const em = email.value.trim();
+          if (!em || !pw.value) return fail('Please enter your email and password.');
+          if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return fail('That email doesn’t look right.');
+          const user = findUser(em, pw.value);
+          if (!user) return fail('Invalid credentials. Try the demo: abc@gmail.com / 12345678');
           err.classList.add('hidden');
-          const btn = form.querySelector('button[type="submit"]');
-          btn.textContent = 'Signing in…';
-          setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
+          try { localStorage.setItem('acm-auth', JSON.stringify(user)); } catch (_) {}
+          const loader = document.getElementById('loader');
+          loader.classList.remove('hidden'); loader.classList.add('flex');
+          setTimeout(() => { window.location.href = 'index.html'; }, 1000);
         });
       });
     </script>
