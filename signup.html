@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () { try { var t = localStorage.getItem('acm-theme') || 'dark'; var e = document.documentElement; e.classList.remove('light', 'dark'); e.classList.add(t); } catch (_) { document.documentElement.classList.add('dark'); } })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c6cff'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M16 7l2.2 5.3L24 14l-5.3 2.2L16 21l-2.2-5.3L8 14z' fill='white'/%3E%3C/svg%3E" />
+    <title>Create your account · AI Career Mentor</title>
+    <meta name="description" content="Create your free AI Career Mentor account." />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { darkMode: 'class', theme: { extend: { colors: { primary: 'hsl(250 84% 62%)', accent: 'hsl(190 95% 55%)', ink: 'hsl(240 15% 4%)' }, fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], display: ['"Sora"', 'Inter', 'sans-serif'] } } } };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="app.css" />
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script src="app.js" defer></script>
+
+    <style>
+      .field { transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease; }
+      .field:focus { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsla(250,84%,62%,.18); }
+      .oauth:hover { background: var(--surface-2); transform: translateY(-1px); }
+      .oauth { transition: background-color .2s, transform .15s; }
+      .auth-enter { animation: authIn .6s cubic-bezier(.2,.8,.2,1) both; }
+      @keyframes authIn { from { opacity: 0; transform: translateY(18px); } }
+      .bar { height: 4px; border-radius: 9999px; background: var(--surface-2); overflow: hidden; }
+      .bar > span { display: block; height: 100%; width: 0; transition: width .3s ease, background .3s ease; }
+    </style>
+  </head>
+
+  <body class="min-h-screen antialiased">
+    <div class="grid-bg"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="grid min-h-screen lg:grid-cols-2">
+      <!-- Brand panel (desktop) -->
+      <aside class="relative hidden overflow-hidden p-12 lg:flex lg:flex-col lg:justify-between">
+        <div class="absolute inset-0 -z-10 bg-gradient-to-br from-primary/20 via-transparent to-accent/15"></div>
+        <a href="index.html" class="flex items-center gap-2.5 font-bold">
+          <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white"><i data-lucide="sparkles" class="h-5 w-5"></i></span>
+          <span class="font-display text-lg">AI Career Mentor</span>
+        </a>
+        <div class="max-w-md auth-enter">
+          <h2 class="font-display text-4xl font-bold leading-tight">Start landing interviews <span class="gradient-text">in minutes.</span></h2>
+          <p class="mt-4 text-slate-400">Create your free account and unlock all 10 AI tools — no credit card required.</p>
+          <ul class="mt-8 space-y-3 text-sm">
+            <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="h-5 w-5 text-accent"></i> Free resume score &amp; ATS scan</li>
+            <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="h-5 w-5 text-accent"></i> AI mock interviews with feedback</li>
+            <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="h-5 w-5 text-accent"></i> A mentor that remembers your journey</li>
+          </ul>
+        </div>
+        <p class="text-xs text-slate-500">© <span class="year"></span> AI Career Mentor</p>
+      </aside>
+
+      <!-- Form -->
+      <main class="flex items-center justify-center p-5 sm:p-8">
+        <div class="w-full max-w-md auth-enter">
+          <div class="mb-6 flex items-center justify-between">
+            <a href="index.html" class="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"><i data-lucide="arrow-left" class="h-4 w-4"></i> Back to home</a>
+            <button data-theme-toggle class="theme-toggle" type="button" aria-label="Toggle theme"></button>
+          </div>
+
+          <div class="glass rounded-3xl p-7 sm:p-9">
+            <div class="lg:hidden mb-6 flex items-center gap-2.5 font-bold">
+              <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white"><i data-lucide="sparkles" class="h-5 w-5"></i></span>
+              <span class="font-display text-lg">AI Career Mentor</span>
+            </div>
+
+            <h1 class="font-display text-2xl font-bold">Create your account</h1>
+            <p class="mt-1 text-sm text-slate-400">Free forever on the starter plan.</p>
+
+            <div class="mt-6 grid grid-cols-2 gap-3">
+              <button type="button" class="oauth glass flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium"><svg class="h-4 w-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.4-1.6 4.1-5.5 4.1-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.9 3.1 14.7 2 12 2 6.9 2 2.8 6.1 2.8 11.2S6.9 20.4 12 20.4c5.9 0 9.8-4.1 9.8-9.9 0-.7-.1-1.2-.2-1.7H12z"/></svg> Google</button>
+              <button type="button" class="oauth glass flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium"><i data-lucide="github" class="h-4 w-4"></i> GitHub</button>
+            </div>
+
+            <div class="my-6 flex items-center gap-3 text-xs text-slate-500"><span class="h-px flex-1 bg-white/10"></span> or sign up with email <span class="h-px flex-1 bg-white/10"></span></div>
+
+            <form id="authForm" class="space-y-4" novalidate>
+              <div>
+                <label class="mb-1.5 block text-sm font-medium" for="name">Full name</label>
+                <div class="relative">
+                  <i data-lucide="user" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"></i>
+                  <input id="name" type="text" required placeholder="Your name" class="field w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-3 text-sm outline-none" />
+                </div>
+              </div>
+              <div>
+                <label class="mb-1.5 block text-sm font-medium" for="email">Email</label>
+                <div class="relative">
+                  <i data-lucide="mail" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"></i>
+                  <input id="email" type="email" required placeholder="you@example.com" class="field w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-3 text-sm outline-none" />
+                </div>
+              </div>
+              <div>
+                <label class="mb-1.5 block text-sm font-medium" for="password">Password</label>
+                <div class="relative">
+                  <i data-lucide="lock" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"></i>
+                  <input id="password" type="password" required placeholder="Create a password" class="field w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-10 text-sm outline-none" />
+                  <button type="button" data-toggle-pw class="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-lg text-slate-400 hover:text-white" aria-label="Show password"><i data-lucide="eye" class="h-4 w-4"></i></button>
+                </div>
+                <div class="bar mt-2"><span id="pwBar"></span></div>
+                <p id="pwHint" class="mt-1 text-xs text-slate-500">Use 8+ characters with a mix of letters &amp; numbers.</p>
+              </div>
+              <label class="flex items-start gap-2 text-sm text-slate-400"><input id="terms" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 accent-[hsl(250_84%_62%)]" /> I agree to the <a href="#" class="text-primary hover:underline">Terms</a> &amp; <a href="#" class="text-primary hover:underline">Privacy Policy</a></label>
+              <p id="formError" class="hidden text-sm text-rose-400"></p>
+              <button type="submit" class="btn-primary w-full rounded-xl py-3 text-sm font-semibold">Create free account →</button>
+            </form>
+
+            <p class="mt-6 text-center text-sm text-slate-400">Already have an account? <a href="login.html" class="font-semibold text-primary hover:underline">Sign in</a></p>
+          </div>
+          <p class="mt-5 text-center text-xs text-slate-500">Static preview · submitting takes you to the demo dashboard.</p>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      document.querySelectorAll('.year').forEach((e) => (e.textContent = new Date().getFullYear()));
+      window.addEventListener('load', () => {
+        if (window.lucide) lucide.createIcons();
+
+        const toggle = document.querySelector('[data-toggle-pw]');
+        const pw = document.getElementById('password');
+        toggle.addEventListener('click', () => {
+          const show = pw.type === 'password';
+          pw.type = show ? 'text' : 'password';
+          toggle.innerHTML = show ? '<i data-lucide="eye-off" class="h-4 w-4"></i>' : '<i data-lucide="eye" class="h-4 w-4"></i>';
+          toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+          if (window.lucide) lucide.createIcons();
+        });
+
+        // password strength meter
+        const bar = document.getElementById('pwBar');
+        pw.addEventListener('input', () => {
+          const v = pw.value;
+          let s = 0;
+          if (v.length >= 8) s++;
+          if (/[A-Z]/.test(v) && /[a-z]/.test(v)) s++;
+          if (/\d/.test(v)) s++;
+          if (/[^A-Za-z0-9]/.test(v)) s++;
+          const pct = [0, 30, 55, 80, 100][s];
+          const color = s <= 1 ? '#fb7185' : s === 2 ? '#fbbf24' : s === 3 ? '#38bdf8' : '#34d399';
+          bar.style.width = pct + '%';
+          bar.style.background = color;
+        });
+
+        const form = document.getElementById('authForm');
+        const err = document.getElementById('formError');
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const name = document.getElementById('name').value.trim();
+          const email = document.getElementById('email').value.trim();
+          if (!name || !email || !pw.value) { err.textContent = 'Please fill in all fields.'; err.classList.remove('hidden'); return; }
+          if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = 'That email doesn’t look right.'; err.classList.remove('hidden'); return; }
+          if (pw.value.length < 8) { err.textContent = 'Password must be at least 8 characters.'; err.classList.remove('hidden'); return; }
+          if (!document.getElementById('terms').checked) { err.textContent = 'Please accept the Terms to continue.'; err.classList.remove('hidden'); return; }
+          err.classList.add('hidden');
+          const btn = form.querySelector('button[type="submit"]');
+          btn.textContent = 'Creating account…';
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 600);
+        });
+      });
+    </script>
+  </body>
+</html>

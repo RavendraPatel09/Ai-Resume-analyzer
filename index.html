@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- apply saved theme before paint (no flash) -->
+    <script>
+      (function () { try { var t = localStorage.getItem('acm-theme') || 'dark'; var e = document.documentElement; e.classList.remove('light', 'dark'); e.classList.add(t); } catch (_) { document.documentElement.classList.add('dark'); } })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c6cff'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M16 7l2.2 5.3L24 14l-5.3 2.2L16 21l-2.2-5.3L8 14z' fill='white'/%3E%3C/svg%3E" />
     <title>AI Career Mentor — 10 AI tools to land your next role, faster</title>
     <meta
@@ -11,10 +15,9 @@
     />
 
     <!--
-      STATIC PREVIEW · no build step required.
-      Open with VS Code "Go Live" / Live Server. The full product is the
-      Next.js + NestJS monorepo — run `pnpm dev` for auth, AI and uploads.
-      Animations: GSAP + ScrollTrigger.  Icons: Lucide.  Utility CSS: Tailwind CDN.
+      STATIC PREVIEW · no build step required. Open with VS Code "Go Live" / Live Server.
+      Shared design system: app.css · Shared helpers: app.js
+      Animations: GSAP · Icons: Lucide · Utility CSS: Tailwind CDN.
     -->
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -23,15 +26,8 @@
         darkMode: 'class',
         theme: {
           extend: {
-            colors: {
-              primary: 'hsl(250 84% 62%)',
-              accent: 'hsl(190 95% 55%)',
-              ink: 'hsl(240 15% 4%)',
-            },
-            fontFamily: {
-              sans: ['Inter', 'system-ui', 'sans-serif'],
-              display: ['"Sora"', 'Inter', 'sans-serif'],
-            },
+            colors: { primary: 'hsl(250 84% 62%)', accent: 'hsl(190 95% 55%)', ink: 'hsl(240 15% 4%)' },
+            fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], display: ['"Sora"', 'Inter', 'sans-serif'] },
           },
         },
       };
@@ -43,132 +39,49 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="app.css" />
 
-    <!-- GSAP -->
+    <!-- GSAP + Lucide + shared helpers -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-    <!-- Lucide icons -->
     <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script src="app.js" defer></script>
 
     <style>
-      :root {
-        --primary: 250 84% 62%;
-        --accent: 190 95% 55%;
-        --bg: 240 17% 4%;
-      }
-      * { -webkit-tap-highlight-color: transparent; }
-      html { scroll-behavior: smooth; }
-      body {
-        font-family: 'Inter', system-ui, sans-serif;
-        background: hsl(var(--bg));
-        color: #e7e8ee;
-        overflow-x: hidden;
-      }
-      .font-display { font-family: 'Sora', Inter, sans-serif; }
-
-      /* ---------- Surfaces ---------- */
-      .glass {
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(255, 255, 255, 0.035);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-      }
-      .gradient-text {
-        background: linear-gradient(100deg, hsl(var(--primary)), hsl(var(--accent)) 60%, hsl(var(--primary)));
-        background-size: 200% auto;
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        animation: shine 6s linear infinite;
-      }
-      @keyframes shine { to { background-position: 200% center; } }
-
-      /* ---------- Ambient background ---------- */
-      .grid-bg {
-        position: fixed; inset: 0; z-index: -2;
-        background-image:
-          linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
-        background-size: 56px 56px;
-        mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 75%);
-        -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 75%);
-      }
-      .orb {
-        position: fixed; z-index: -1; border-radius: 9999px;
-        filter: blur(80px); opacity: .5; pointer-events: none;
-      }
-      .orb-1 { width: 480px; height: 480px; top: -120px; left: -80px;
-        background: radial-gradient(circle, hsla(250,84%,62%,.55), transparent 70%); }
-      .orb-2 { width: 460px; height: 460px; top: 10%; right: -120px;
-        background: radial-gradient(circle, hsla(190,95%,55%,.45), transparent 70%); }
-      .orb-3 { width: 520px; height: 520px; bottom: -160px; left: 30%;
-        background: radial-gradient(circle, hsla(280,80%,60%,.30), transparent 70%); }
-
-      /* ---------- Buttons ---------- */
-      .btn-primary {
-        position: relative; overflow: hidden;
-        background: linear-gradient(100deg, hsl(var(--primary)), hsl(var(--accent)));
-        box-shadow: 0 12px 40px -10px hsla(250,84%,62%,.7);
-        will-change: transform;
-      }
-      .btn-primary::after {
-        content: ''; position: absolute; inset: 0;
-        background: linear-gradient(100deg, transparent, rgba(255,255,255,.35), transparent);
-        transform: translateX(-120%); transition: transform .6s ease;
-      }
-      .btn-primary:hover::after { transform: translateX(120%); }
-
-      /* ---------- Tool cards ---------- */
+      /* ---------- page-specific ---------- */
       .tool-card {
         position: relative; overflow: hidden;
-        border: 1px solid rgba(255,255,255,.08);
-        background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+        border: 1px solid var(--card-border);
+        background: var(--card);
         transform-style: preserve-3d;
         transition: border-color .3s ease, box-shadow .3s ease, transform .15s ease;
         will-change: transform;
       }
-      /* glow that follows the cursor */
       .tool-card::before {
         content: ''; position: absolute; inset: 0; opacity: 0;
-        background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%),
-          hsla(250,84%,62%,.18), transparent 45%);
+        background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%), hsla(250,84%,62%,.18), transparent 45%);
         transition: opacity .35s ease;
       }
-      .tool-card:hover { border-color: hsla(250,84%,62%,.5); box-shadow: 0 24px 60px -20px rgba(0,0,0,.6); }
+      .tool-card:hover { border-color: hsla(250,84%,62%,.5); box-shadow: 0 24px 60px -24px hsla(250,84%,62%,.5); }
       .tool-card:hover::before { opacity: 1; }
-      .tool-card:hover .tool-icon {
-        transform: translateZ(40px) scale(1.08);
-        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
-        color: #fff;
-      }
+      .tool-card:hover .tool-icon { transform: translateZ(40px) scale(1.08); background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent))); color: #fff; }
       .tool-icon { transition: transform .35s cubic-bezier(.2,.8,.2,1), background .35s, color .35s; }
       .tool-card:hover .tool-arrow { opacity: 1; transform: translateX(0); }
       .tool-arrow { opacity: 0; transform: translateX(-6px); transition: all .3s ease; }
 
-      /* ---------- Reveal ---------- */
-      .gsap-ready .reveal { opacity: 0; transform: translateY(28px); }
-
-      /* ---------- Marquee ---------- */
       .marquee { display: flex; gap: 3rem; width: max-content; animation: marquee 28s linear infinite; }
       @keyframes marquee { to { transform: translateX(-50%); } }
 
-      /* ---------- Mobile menu ---------- */
       #mobileMenu { transition: opacity .25s ease, transform .25s ease; }
       #mobileMenu.hidden-menu { opacity: 0; transform: translateY(-10px); pointer-events: none; }
 
-      /* ---------- Misc ---------- */
+      .gsap-ready .reveal { opacity: 0; transform: translateY(28px); }
       .scroll-progress { transform-origin: 0 50%; transform: scaleX(0); }
-      ::selection { background: hsla(250,84%,62%,.4); color: #fff; }
-
-      @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
-        .gsap-ready .reveal { opacity: 1 !important; transform: none !important; }
-      }
+      @media (prefers-reduced-motion: reduce) { .gsap-ready .reveal { opacity: 1 !important; transform: none !important; } }
     </style>
   </head>
 
   <body class="min-h-screen antialiased">
-    <!-- ambient background -->
     <div class="grid-bg"></div>
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
@@ -182,30 +95,25 @@
     <!-- ============================ NAV ============================ -->
     <header id="nav" class="fixed inset-x-0 top-0 z-50 transition-all duration-300">
       <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
-        <a href="index.html" class="flex items-center gap-2.5 font-bold">
-          <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-lg shadow-primary/30">
+        <a href="index.html" class="group flex items-center gap-2.5 font-bold">
+          <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-lg shadow-primary/30 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105">
             <i data-lucide="sparkles" class="h-5 w-5"></i>
           </span>
           <span class="font-display text-lg tracking-tight">AI Career Mentor</span>
         </a>
 
         <nav class="hidden items-center gap-1 md:flex">
-          <a href="#tools" class="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white">Tools</a>
-          <a href="#how" class="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white">How it works</a>
-          <a href="#why" class="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white">Why us</a>
-          <a href="dashboard.html" class="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white">Dashboard</a>
+          <a href="#tools" data-spy="tools" class="nav-pill rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white">Tools</a>
+          <a href="#how" data-spy="how" class="nav-pill rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white">How it works</a>
+          <a href="#why" data-spy="why" class="nav-pill rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white">Why us</a>
+          <a href="dashboard.html" class="nav-pill rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white">Dashboard</a>
         </nav>
 
         <div class="flex items-center gap-2">
-          <a href="dashboard.html" class="hidden rounded-xl px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white sm:block">Sign in</a>
-          <a
-            href="dashboard.html"
-            data-magnetic
-            class="btn-primary hidden rounded-xl px-5 py-2.5 text-sm font-semibold text-white sm:block"
-          >Get started free</a>
-          <!-- mobile menu toggle -->
-          <button id="menuBtn" aria-label="Open menu" aria-expanded="false"
-            class="grid h-10 w-10 place-items-center rounded-xl text-slate-200 transition hover:bg-white/10 md:hidden">
+          <button data-theme-toggle class="theme-toggle" type="button" aria-label="Toggle theme"></button>
+          <a href="login.html" class="hidden rounded-xl px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white sm:block">Sign in</a>
+          <a href="signup.html" data-magnetic class="btn-primary hidden rounded-xl px-5 py-2.5 text-sm font-semibold sm:block">Get started free</a>
+          <button id="menuBtn" aria-label="Open menu" aria-expanded="false" class="theme-toggle md:hidden">
             <i data-lucide="menu" class="h-6 w-6"></i>
           </button>
         </div>
@@ -213,11 +121,14 @@
 
       <!-- mobile dropdown -->
       <div id="mobileMenu" class="hidden-menu glass mx-4 rounded-2xl p-3 md:hidden">
-        <a href="#tools" data-close-menu class="block rounded-lg px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/10">Tools</a>
-        <a href="#how" data-close-menu class="block rounded-lg px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/10">How it works</a>
-        <a href="#why" data-close-menu class="block rounded-lg px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/10">Why us</a>
-        <a href="dashboard.html" class="block rounded-lg px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/10">Dashboard</a>
-        <a href="dashboard.html" class="btn-primary mt-2 block rounded-lg px-4 py-3 text-center text-sm font-semibold text-white">Get started free</a>
+        <a href="#tools" data-close-menu class="block rounded-lg px-4 py-3 text-sm font-medium transition hover:bg-white/10">Tools</a>
+        <a href="#how" data-close-menu class="block rounded-lg px-4 py-3 text-sm font-medium transition hover:bg-white/10">How it works</a>
+        <a href="#why" data-close-menu class="block rounded-lg px-4 py-3 text-sm font-medium transition hover:bg-white/10">Why us</a>
+        <a href="dashboard.html" class="block rounded-lg px-4 py-3 text-sm font-medium transition hover:bg-white/10">Dashboard</a>
+        <div class="mt-2 grid grid-cols-2 gap-2">
+          <a href="login.html" class="btn-ghost rounded-lg px-4 py-3 text-center text-sm font-semibold">Sign in</a>
+          <a href="signup.html" class="btn-primary rounded-lg px-4 py-3 text-center text-sm font-semibold">Get started</a>
+        </div>
       </div>
     </header>
 
@@ -232,8 +143,7 @@
       </div>
 
       <h1 data-hero class="font-display max-w-4xl text-[2.7rem] font-extrabold leading-[1.05] tracking-tight sm:text-6xl md:text-7xl">
-        Your career, guided by an
-        <span class="gradient-text">AI that remembers you</span>
+        Your career, guided by an <span class="gradient-text">AI that remembers you</span>
       </h1>
 
       <p data-hero class="mt-7 max-w-2xl text-lg leading-relaxed text-slate-400">
@@ -242,12 +152,8 @@
       </p>
 
       <div data-hero class="mt-10 flex flex-col items-center gap-3 sm:flex-row">
-        <a href="dashboard.html#resume-analyzer" data-magnetic class="btn-primary rounded-xl px-8 py-3.5 text-base font-semibold text-white">
-          Start free — analyze my resume →
-        </a>
-        <a href="#tools" data-magnetic class="glass rounded-xl px-8 py-3.5 text-base font-semibold text-white transition hover:bg-white/10">
-          Explore the 10 tools
-        </a>
+        <a href="signup.html" data-magnetic class="btn-primary rounded-xl px-8 py-3.5 text-base font-semibold">Start free — analyze my resume →</a>
+        <a href="#tools" data-magnetic class="btn-ghost glass rounded-xl px-8 py-3.5 text-base font-semibold">Explore the 10 tools</a>
       </div>
 
       <div data-hero class="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-400">
@@ -270,16 +176,12 @@
               <div class="glass rounded-2xl p-5 text-left">
                 <p class="text-xs uppercase tracking-wide text-slate-500">Resume score</p>
                 <p class="mt-2 font-display text-4xl font-bold text-emerald-400" data-count="84">0</p>
-                <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
-                  <div class="h-full rounded-full bg-gradient-to-r from-primary to-accent" style="width:84%"></div>
-                </div>
+                <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div class="h-full rounded-full bg-gradient-to-r from-primary to-accent" style="width:84%"></div></div>
               </div>
               <div class="glass rounded-2xl p-5 text-left">
                 <p class="text-xs uppercase tracking-wide text-slate-500">ATS match</p>
                 <p class="mt-2 font-display text-4xl font-bold text-accent" data-count="81">0</p>
-                <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
-                  <div class="h-full rounded-full bg-gradient-to-r from-accent to-primary" style="width:81%"></div>
-                </div>
+                <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div class="h-full rounded-full bg-gradient-to-r from-accent to-primary" style="width:81%"></div></div>
               </div>
               <div class="glass rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 p-5 text-left">
                 <p class="inline-flex items-center gap-1.5 text-xs font-medium text-primary"><i data-lucide="sparkles" class="h-3.5 w-3.5"></i> AI next step</p>
@@ -300,39 +202,20 @@
     <!-- ============================ STATS ============================ -->
     <section class="mx-auto max-w-7xl px-5 py-20 sm:px-8">
       <div class="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-        <div class="glass reveal rounded-2xl p-6 text-center">
-          <p class="font-display text-4xl font-bold gradient-text"><span data-count="10">0</span></p>
-          <p class="mt-1 text-sm text-slate-400">AI-powered tools</p>
-        </div>
-        <div class="glass reveal rounded-2xl p-6 text-center">
-          <p class="font-display text-4xl font-bold gradient-text"><span data-count="3">0</span>×</p>
-          <p class="mt-1 text-sm text-slate-400">More interview calls</p>
-        </div>
-        <div class="glass reveal rounded-2xl p-6 text-center">
-          <p class="font-display text-4xl font-bold gradient-text"><span data-count="95">0</span>%</p>
-          <p class="mt-1 text-sm text-slate-400">ATS pass rate</p>
-        </div>
-        <div class="glass reveal rounded-2xl p-6 text-center">
-          <p class="font-display text-4xl font-bold gradient-text">24/7</p>
-          <p class="mt-1 text-sm text-slate-400">Mentor that remembers</p>
-        </div>
+        <div class="glass reveal rounded-2xl p-6 text-center"><p class="font-display text-4xl font-bold gradient-text"><span data-count="10">0</span></p><p class="mt-1 text-sm text-slate-400">AI-powered tools</p></div>
+        <div class="glass reveal rounded-2xl p-6 text-center"><p class="font-display text-4xl font-bold gradient-text"><span data-count="3">0</span>×</p><p class="mt-1 text-sm text-slate-400">More interview calls</p></div>
+        <div class="glass reveal rounded-2xl p-6 text-center"><p class="font-display text-4xl font-bold gradient-text"><span data-count="95">0</span>%</p><p class="mt-1 text-sm text-slate-400">ATS pass rate</p></div>
+        <div class="glass reveal rounded-2xl p-6 text-center"><p class="font-display text-4xl font-bold gradient-text">24/7</p><p class="mt-1 text-sm text-slate-400">Mentor that remembers</p></div>
       </div>
     </section>
 
     <!-- ============================ TOOLS ============================ -->
     <section id="tools" class="mx-auto max-w-7xl scroll-mt-24 px-5 py-16 sm:px-8">
       <div class="mx-auto max-w-2xl text-center">
-        <p class="reveal mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
-          <i data-lucide="layout-grid" class="h-3.5 w-3.5"></i> The toolkit
-        </p>
-        <h2 class="reveal font-display text-3xl font-bold tracking-tight sm:text-5xl">
-          10 AI tools. <span class="gradient-text">One career copilot.</span>
-        </h2>
-        <p class="reveal mt-4 text-slate-400">
-          Every tool shares the same memory of your goals, skills and history — so advice compounds instead of resetting.
-        </p>
+        <p class="reveal mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary"><i data-lucide="layout-grid" class="h-3.5 w-3.5"></i> The toolkit</p>
+        <h2 class="reveal font-display text-3xl font-bold tracking-tight sm:text-5xl">10 AI tools. <span class="gradient-text">One career copilot.</span></h2>
+        <p class="reveal mt-4 text-slate-400">Every tool shares the same memory of your goals, skills and history — so advice compounds instead of resetting.</p>
       </div>
-
       <div id="toolsGrid" class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
     </section>
 
@@ -342,7 +225,6 @@
         <h2 class="reveal font-display text-3xl font-bold tracking-tight sm:text-5xl">From upload to offer</h2>
         <p class="reveal mt-4 text-slate-400">A guided flow, not a pile of disconnected tools.</p>
       </div>
-
       <div class="relative mt-16 grid gap-8 md:grid-cols-3">
         <div class="absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-transparent via-white/15 to-transparent md:block"></div>
         <div class="reveal relative text-center">
@@ -371,36 +253,20 @@
       <div class="glass relative overflow-hidden rounded-3xl p-8 sm:p-14">
         <div class="grid items-center gap-10 lg:grid-cols-2">
           <div>
-            <p class="reveal mb-3 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
-              <i data-lucide="brain-circuit" class="h-3.5 w-3.5"></i> Long-term memory
-            </p>
+            <p class="reveal mb-3 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent"><i data-lucide="brain-circuit" class="h-3.5 w-3.5"></i> Long-term memory</p>
             <h2 class="reveal font-display text-3xl font-bold tracking-tight sm:text-4xl">An AI mentor that actually <span class="gradient-text">remembers you</span></h2>
-            <p class="reveal mt-4 text-slate-400">
-              Most tools forget you the moment you close the tab. AI Career Mentor builds a private,
-              evolving profile — your goals, skills, applications and every win — so every answer
-              gets sharper over time.
-            </p>
+            <p class="reveal mt-4 text-slate-400">Most tools forget you the moment you close the tab. AI Career Mentor builds a private, evolving profile — your goals, skills, applications and every win — so every answer gets sharper over time.</p>
             <ul class="mt-6 space-y-3 text-sm">
               <li class="reveal flex items-start gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-accent"></i> Recalls past resumes, scores and feedback automatically</li>
               <li class="reveal flex items-start gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-accent"></i> Recommends the single best next action, every session</li>
               <li class="reveal flex items-start gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-accent"></i> Tracks momentum across all 10 tools in one timeline</li>
             </ul>
-            <a href="dashboard.html" data-magnetic class="btn-primary mt-8 inline-block rounded-xl px-7 py-3 text-sm font-semibold text-white">See it in the dashboard →</a>
+            <a href="signup.html" data-magnetic class="btn-primary mt-8 inline-block rounded-xl px-7 py-3 text-sm font-semibold">Create your free account →</a>
           </div>
-
           <div class="reveal space-y-3">
-            <div class="glass rounded-2xl p-4">
-              <p class="text-xs text-slate-500">🧠 Remembered</p>
-              <p class="mt-1 text-sm">Goal: <span class="font-semibold text-white">Senior Backend Engineer</span> · Target: <span class="font-semibold text-white">Mar 2026</span></p>
-            </div>
-            <div class="glass rounded-2xl p-4">
-              <p class="text-xs text-slate-500">📈 Progress</p>
-              <p class="mt-1 text-sm">Resume <span class="font-semibold text-emerald-400">+26 pts</span> · 12 applications · 4 interviews</p>
-            </div>
-            <div class="glass rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 p-4">
-              <p class="inline-flex items-center gap-1.5 text-xs text-primary"><i data-lucide="sparkles" class="h-3.5 w-3.5"></i> Suggested now</p>
-              <p class="mt-1 text-sm font-semibold text-white">Practice system-design interview #2 — you scored 71% last time.</p>
-            </div>
+            <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-500">🧠 Remembered</p><p class="mt-1 text-sm">Goal: <span class="font-semibold text-white">Senior Backend Engineer</span> · Target: <span class="font-semibold text-white">Mar 2026</span></p></div>
+            <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-500">📈 Progress</p><p class="mt-1 text-sm">Resume <span class="font-semibold text-emerald-400">+26 pts</span> · 12 applications · 4 interviews</p></div>
+            <div class="glass rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 p-4"><p class="inline-flex items-center gap-1.5 text-xs text-primary"><i data-lucide="sparkles" class="h-3.5 w-3.5"></i> Suggested now</p><p class="mt-1 text-sm font-semibold text-white">Practice system-design interview #2 — you scored 71% last time.</p></div>
           </div>
         </div>
       </div>
@@ -408,15 +274,11 @@
 
     <!-- ============================ CTA ============================ -->
     <section class="mx-auto max-w-5xl px-5 py-24 text-center sm:px-8">
-      <h2 class="reveal font-display text-4xl font-bold tracking-tight sm:text-6xl">
-        Ready to land the role <span class="gradient-text">you actually want?</span>
-      </h2>
-      <p class="reveal mx-auto mt-5 max-w-xl text-lg text-slate-400">
-        Join in 30 seconds. Upload your resume and watch your career copilot get to work.
-      </p>
+      <h2 class="reveal font-display text-4xl font-bold tracking-tight sm:text-6xl">Ready to land the role <span class="gradient-text">you actually want?</span></h2>
+      <p class="reveal mx-auto mt-5 max-w-xl text-lg text-slate-400">Join in 30 seconds. Create your account and watch your career copilot get to work.</p>
       <div class="reveal mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <a href="dashboard.html#resume-analyzer" data-magnetic class="btn-primary rounded-xl px-9 py-4 text-base font-semibold text-white">Get started free →</a>
-        <a href="dashboard.html" data-magnetic class="glass rounded-xl px-9 py-4 text-base font-semibold text-white transition hover:bg-white/10">View demo dashboard</a>
+        <a href="signup.html" data-magnetic class="btn-primary rounded-xl px-9 py-4 text-base font-semibold">Get started free →</a>
+        <a href="login.html" data-magnetic class="btn-ghost glass rounded-xl px-9 py-4 text-base font-semibold">I already have an account</a>
       </div>
     </section>
 
@@ -445,25 +307,19 @@
             <li><a href="#tools" class="transition hover:text-white">All 10 tools</a></li>
             <li><a href="#how" class="transition hover:text-white">How it works</a></li>
             <li><a href="dashboard.html" class="transition hover:text-white">Dashboard</a></li>
+            <li><a href="login.html" class="transition hover:text-white">Sign in</a></li>
           </ul>
         </div>
         <div>
           <p class="text-sm font-semibold text-white">Powered by</p>
-          <ul class="mt-3 space-y-2 text-sm text-slate-400">
-            <li>Claude · GPT · Gemini</li>
-            <li>Next.js · NestJS</li>
-            <li>pgvector memory</li>
-          </ul>
+          <ul class="mt-3 space-y-2 text-sm text-slate-400"><li>Claude · GPT · Gemini</li><li>Next.js · NestJS</li><li>pgvector memory</li></ul>
         </div>
       </div>
-      <div class="border-t border-white/5 py-6 text-center text-sm text-slate-500">
-        © <span id="year"></span> AI Career Mentor · Static preview · Run <code class="text-slate-400">pnpm dev</code> for the full app
-      </div>
+      <div class="border-t border-white/5 py-6 text-center text-sm text-slate-500">© <span id="year"></span> AI Career Mentor · Static preview · Run <code class="text-slate-400">pnpm dev</code> for the full app</div>
     </footer>
 
-    <!-- ============================ SCRIPTS ============================ -->
+    <!-- ============================ PAGE SCRIPT ============================ -->
     <script>
-      /* ---------- Tool data (slug deep-links to dashboard views) ---------- */
       const TOOLS = [
         ['file-search',  'Resume Parsing',         'resume-analyzer',    'Turn any PDF/DOCX into clean, structured data — contact, experience, skills and education in seconds.'],
         ['shield-check', 'ATS Scanner',            'ats-scanner',        'Score your resume against any job description and surface the exact keywords applicant-tracking systems want.'],
@@ -477,129 +333,70 @@
         ['mail',         'Cover Letter Generator', 'cover-letter',       'Generate tailored, role-specific cover letters that sound like you — not a template.'],
       ];
 
-      const grid = document.getElementById('toolsGrid');
-      grid.innerHTML = TOOLS.map(([icon, title, slug, blurb], i) => `
-        <a href="dashboard.html#${slug}" data-tilt
-           class="tool-card reveal group block rounded-2xl p-6 sm:p-7">
+      document.getElementById('toolsGrid').innerHTML = TOOLS.map(([icon, title, slug, blurb], i) => `
+        <a href="dashboard.html#${slug}" data-tilt class="tool-card group block rounded-2xl p-6 reveal sm:p-7">
           <div class="flex items-start justify-between">
-            <span class="tool-icon grid h-12 w-12 place-items-center rounded-xl bg-white/5 text-primary">
-              <i data-lucide="${icon}" class="h-6 w-6"></i>
-            </span>
+            <span class="tool-icon grid h-12 w-12 place-items-center rounded-xl bg-white/5 text-primary"><i data-lucide="${icon}" class="h-6 w-6"></i></span>
             <span class="text-xs font-semibold text-slate-600">${String(i + 1).padStart(2, '0')}</span>
           </div>
           <h3 class="mt-5 font-display text-lg font-semibold text-white">${title}</h3>
           <p class="mt-2 text-sm leading-relaxed text-slate-400">${blurb}</p>
-          <span class="tool-arrow mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-            Open tool <i data-lucide="arrow-right" class="h-4 w-4"></i>
-          </span>
+          <span class="tool-arrow mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">Open tool <i data-lucide="arrow-right" class="h-4 w-4"></i></span>
         </a>`).join('');
 
-      /* ---------- Marquee (built from tool list, duplicated for seamless loop) ---------- */
-      const marqueeItem = (t) => `<span class="flex items-center gap-3">${t}<i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>`;
-      const marqueeNames = TOOLS.map((t) => t[1]);
-      document.getElementById('marquee').innerHTML =
-        [...marqueeNames, ...marqueeNames].map(marqueeItem).join('');
-
+      const mItem = (t) => `<span class="flex items-center gap-3">${t}<i data-lucide="circle" class="h-1.5 w-1.5 fill-current"></i></span>`;
+      const names = TOOLS.map((t) => t[1]);
+      document.getElementById('marquee').innerHTML = [...names, ...names].map(mItem).join('');
       document.getElementById('year').textContent = new Date().getFullYear();
 
-      /* ---------- Init after libs load ---------- */
       window.addEventListener('load', () => {
         if (window.lucide) lucide.createIcons();
-
         const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const isTouch = window.matchMedia('(hover: none)').matches;
 
-        /* ----- Mobile menu ----- */
+        /* mobile menu */
         const menuBtn = document.getElementById('menuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
-        const setMenu = (openState) => {
-          mobileMenu.classList.toggle('hidden-menu', !openState);
-          menuBtn.setAttribute('aria-expanded', String(openState));
-          menuBtn.innerHTML = openState
-            ? '<i data-lucide="x" class="h-6 w-6"></i>'
-            : '<i data-lucide="menu" class="h-6 w-6"></i>';
+        const setMenu = (open) => {
+          mobileMenu.classList.toggle('hidden-menu', !open);
+          menuBtn.setAttribute('aria-expanded', String(open));
+          menuBtn.innerHTML = open ? '<i data-lucide="x" class="h-6 w-6"></i>' : '<i data-lucide="menu" class="h-6 w-6"></i>';
           if (window.lucide) lucide.createIcons();
         };
-        menuBtn.addEventListener('click', () => {
-          setMenu(mobileMenu.classList.contains('hidden-menu'));
-        });
-        mobileMenu.querySelectorAll('a').forEach((a) =>
-          a.addEventListener('click', () => setMenu(false)),
-        );
+        menuBtn.addEventListener('click', () => setMenu(mobileMenu.classList.contains('hidden-menu')));
+        mobileMenu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
 
-        /* ----- Magnetic buttons (desktop, motion-ok) ----- */
-        if (!isTouch && !prefersReduced) {
-          document.querySelectorAll('[data-magnetic]').forEach((el) => {
-            el.addEventListener('mousemove', (e) => {
-              const r = el.getBoundingClientRect();
-              const mx = e.clientX - r.left - r.width / 2;
-              const my = e.clientY - r.top - r.height / 2;
-              el.style.transform = `translate(${mx * 0.25}px, ${my * 0.35}px)`;
-            });
-            el.addEventListener('mouseleave', () => { el.style.transform = 'translate(0,0)'; });
-          });
-
-          /* ----- 3D tilt + glow on tool cards ----- */
-          document.querySelectorAll('[data-tilt]').forEach((card) => {
-            card.addEventListener('mousemove', (e) => {
-              const r = card.getBoundingClientRect();
-              const px = (e.clientX - r.left) / r.width;
-              const py = (e.clientY - r.top) / r.height;
-              card.style.setProperty('--mx', `${px * 100}%`);
-              card.style.setProperty('--my', `${py * 100}%`);
-              const rotX = (0.5 - py) * 10;
-              const rotY = (px - 0.5) * 12;
-              card.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-4px)`;
-            });
-            card.addEventListener('mouseleave', () => {
-              card.style.transform = 'perspective(900px) rotateX(0) rotateY(0) translateY(0)';
-            });
-          });
-        }
-
-        /* ----- Nav background on scroll ----- */
+        /* nav bg on scroll */
         const nav = document.getElementById('nav');
-        const onScroll = () => {
-          const scrolled = window.scrollY > 12;
-          nav.classList.toggle('glass', scrolled);
-          nav.classList.toggle('shadow-lg', scrolled);
-        };
+        const onScroll = () => { const s = window.scrollY > 12; nav.classList.toggle('glass', s); nav.classList.toggle('shadow-lg', s); };
         onScroll();
         window.addEventListener('scroll', onScroll, { passive: true });
 
-        /* ----- GSAP animations ----- */
+        /* scroll-spy active nav link */
+        const spy = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              document.querySelectorAll('[data-spy]').forEach((a) => a.classList.toggle('active', a.dataset.spy === e.target.id));
+            }
+          });
+        }, { rootMargin: '-45% 0px -50% 0px' });
+        ['tools', 'how', 'why'].forEach((id) => { const el = document.getElementById(id); if (el) spy.observe(el); });
+
+        /* GSAP */
         if (window.gsap && !prefersReduced) {
           document.documentElement.classList.add('gsap-ready');
           gsap.registerPlugin(ScrollTrigger);
-
           gsap.set('[data-hero]', { opacity: 0, y: 30 });
           gsap.to('[data-hero]', { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', stagger: 0.12, delay: 0.15 });
-
           gsap.to('[data-float]', { y: -14, duration: 3, ease: 'sine.inOut', yoyo: true, repeat: -1 });
-
           gsap.to('.orb-1', { x: 60, y: 40, duration: 12, ease: 'sine.inOut', yoyo: true, repeat: -1 });
           gsap.to('.orb-2', { x: -50, y: 60, duration: 14, ease: 'sine.inOut', yoyo: true, repeat: -1 });
           gsap.to('.orb-3', { x: 40, y: -40, duration: 16, ease: 'sine.inOut', yoyo: true, repeat: -1 });
-
-          ScrollTrigger.batch('.reveal', {
-            start: 'top 88%',
-            onEnter: (els) => gsap.to(els, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', stagger: 0.08, overwrite: true }),
-            once: true,
-          });
-
+          ScrollTrigger.batch('.reveal', { start: 'top 88%', onEnter: (els) => gsap.to(els, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', stagger: 0.08, overwrite: true }), once: true });
           document.querySelectorAll('[data-count]').forEach((el) => {
-            const end = +el.getAttribute('data-count');
-            const obj = { v: 0 };
-            ScrollTrigger.create({
-              trigger: el, start: 'top 92%', once: true,
-              onEnter: () => gsap.to(obj, { v: end, duration: 1.6, ease: 'power2.out', onUpdate: () => { el.textContent = Math.round(obj.v); } }),
-            });
+            const end = +el.getAttribute('data-count'); const obj = { v: 0 };
+            ScrollTrigger.create({ trigger: el, start: 'top 92%', once: true, onEnter: () => gsap.to(obj, { v: end, duration: 1.6, ease: 'power2.out', onUpdate: () => { el.textContent = Math.round(obj.v); } }) });
           });
-
-          gsap.to('#scrollBar', {
-            scaleX: 1, ease: 'none',
-            scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 0.3 },
-          });
+          gsap.to('#scrollBar', { scaleX: 1, ease: 'none', scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 0.3 } });
         } else {
           document.querySelectorAll('[data-count]').forEach((el) => { el.textContent = el.getAttribute('data-count'); });
         }

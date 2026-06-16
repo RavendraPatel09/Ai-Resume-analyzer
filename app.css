@@ -1,0 +1,181 @@
+/* ============================================================
+   AI Career Mentor — shared design system (dark + light)
+   Loaded by index / dashboard / login / signup.
+   Pages keep only page-specific CSS inline.
+============================================================ */
+
+/* ---------- Theme tokens ---------- */
+:root,
+html.dark {
+  --primary: 250 84% 62%;
+  --accent: 190 95% 55%;
+
+  --bg: #0a0a0f;
+  --fg: #e7e8ee;
+
+  --card: rgba(255, 255, 255, 0.035);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-shadow: 0 18px 50px -28px rgba(0, 0, 0, 0.7);
+
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-2: rgba(255, 255, 255, 0.10);
+  --border: rgba(255, 255, 255, 0.10);
+  --border-soft: rgba(255, 255, 255, 0.05);
+  --panel: rgba(12, 12, 18, 0.96);
+  --grid-line: rgba(255, 255, 255, 0.04);
+
+  --orb-1: hsla(250, 84%, 62%, 0.55);
+  --orb-2: hsla(190, 95%, 55%, 0.45);
+  --orb-3: hsla(280, 80%, 60%, 0.30);
+  --orb-opacity: 0.5;
+}
+
+html.light {
+  --bg: #f3f5fb;
+  --fg: #0f172a;
+
+  --card: rgba(255, 255, 255, 0.75);
+  --card-border: rgba(15, 23, 42, 0.08);
+  --card-shadow: 0 14px 40px -22px rgba(15, 23, 42, 0.28);
+
+  --surface: rgba(15, 23, 42, 0.04);
+  --surface-2: rgba(15, 23, 42, 0.07);
+  --border: rgba(15, 23, 42, 0.12);
+  --border-soft: rgba(15, 23, 42, 0.07);
+  --panel: rgba(255, 255, 255, 0.98);
+  --grid-line: rgba(15, 23, 42, 0.05);
+
+  --orb-1: hsla(250, 84%, 62%, 0.28);
+  --orb-2: hsla(190, 95%, 50%, 0.22);
+  --orb-3: hsla(280, 80%, 60%, 0.16);
+  --orb-opacity: 0.55;
+}
+
+/* ---------- Base ---------- */
+* { -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  overflow-x: hidden;
+  transition: background-color .4s ease, color .4s ease;
+}
+.font-display { font-family: 'Sora', Inter, sans-serif; }
+::selection { background: hsla(250, 84%, 62%, .35); color: #fff; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border); }
+
+/* keyboard focus only (no flash on tap/click) */
+:focus { outline: none; }
+:focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 2px; border-radius: 6px; }
+
+/* ---------- Surfaces ---------- */
+.glass {
+  border: 1px solid var(--card-border);
+  background: var(--card);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.gradient-text {
+  background: linear-gradient(100deg, hsl(var(--primary)), hsl(var(--accent)) 60%, hsl(var(--primary)));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shine 6s linear infinite;
+}
+@keyframes shine { to { background-position: 200% center; } }
+html.light .gradient-text { background-image: linear-gradient(100deg, hsl(250 80% 56%), hsl(199 90% 42%) 60%, hsl(250 80% 56%)); }
+
+/* ---------- Ambient background ---------- */
+.grid-bg {
+  position: fixed; inset: 0; z-index: -2;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 75%);
+}
+.orb { position: fixed; z-index: -1; border-radius: 9999px; filter: blur(85px); opacity: var(--orb-opacity); pointer-events: none; }
+.orb-1 { width: 480px; height: 480px; top: -120px; left: -80px; background: radial-gradient(circle, var(--orb-1), transparent 70%); }
+.orb-2 { width: 460px; height: 460px; top: 10%; right: -120px; background: radial-gradient(circle, var(--orb-2), transparent 70%); }
+.orb-3 { width: 520px; height: 520px; bottom: -160px; left: 30%; background: radial-gradient(circle, var(--orb-3), transparent 70%); }
+
+/* ---------- Buttons (NO white shine) ---------- */
+.btn-primary {
+  position: relative;
+  background: linear-gradient(100deg, hsl(var(--primary)), hsl(var(--accent)));
+  color: #fff;
+  box-shadow: 0 12px 34px -12px hsla(250, 84%, 62%, .65);
+  transition: transform .18s cubic-bezier(.2,.8,.2,1), filter .2s ease, box-shadow .2s ease;
+  will-change: transform;
+}
+.btn-primary:hover { transform: translateY(-2px); filter: saturate(1.08) brightness(1.06); box-shadow: 0 18px 44px -12px hsla(250, 84%, 62%, .8); }
+.btn-primary:active { transform: translateY(0) scale(.985); }
+
+.btn-ghost { border: 1px solid var(--border); color: var(--fg); transition: background-color .2s ease, border-color .2s ease, transform .18s ease; }
+.btn-ghost:hover { background: var(--surface-2); transform: translateY(-1px); }
+.btn-ghost:active { transform: translateY(0); }
+
+/* ---------- Theme toggle ---------- */
+.theme-toggle {
+  display: grid; place-items: center;
+  height: 40px; width: 40px; border-radius: 12px;
+  border: 1px solid var(--border); color: var(--fg);
+  transition: background-color .2s ease, transform .3s cubic-bezier(.2,.8,.2,1), border-color .2s;
+}
+.theme-toggle:hover { background: var(--surface-2); transform: rotate(-18deg); }
+.theme-toggle:active { transform: rotate(0) scale(.92); }
+
+/* ---------- Animated nav underline ---------- */
+.nav-pill { position: relative; }
+.nav-pill::after {
+  content: ''; position: absolute; left: 14px; right: 14px; bottom: 6px; height: 2px;
+  border-radius: 2px; background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+  transform: scaleX(0); transform-origin: left; transition: transform .28s cubic-bezier(.2,.8,.2,1);
+}
+.nav-pill:hover::after, .nav-pill.active::after { transform: scaleX(1); }
+
+/* ============================================================
+   LIGHT-MODE utility remaps (markup uses Tailwind utilities)
+============================================================ */
+html.light .text-white { color: #0f172a !important; }
+/* keep white text where it sits on a colored gradient */
+html.light .btn-primary,
+html.light .btn-primary .text-white,
+html.light .bubble-user,
+html.light .from-primary.text-white { color: #fff !important; }
+
+html.light .text-slate-100,
+html.light .text-slate-200,
+html.light .text-slate-300 { color: #1e293b !important; }
+html.light .text-slate-400 { color: #475569 !important; }
+html.light .text-slate-500 { color: #64748b !important; }
+html.light .text-slate-600 { color: #94a3b8 !important; }
+
+html.light .text-primary { color: hsl(250 70% 52%) !important; }
+html.light .text-accent  { color: hsl(196 90% 36%) !important; }
+html.light .text-emerald-400, html.light .text-emerald-300 { color: #059669 !important; }
+html.light .text-amber-400 { color: #b45309 !important; }
+html.light .text-rose-400, html.light .text-rose-300 { color: #e11d48 !important; }
+html.light .text-sky-400 { color: #0284c7 !important; }
+html.light .text-slate-200.text-emerald-400 { color: #059669 !important; }
+
+html.light .bg-white\/5  { background-color: rgba(15, 23, 42, 0.04) !important; }
+html.light .bg-white\/10 { background-color: rgba(15, 23, 42, 0.07) !important; }
+html.light .border-white\/5  { border-color: rgba(15, 23, 42, 0.06) !important; }
+html.light .border-white\/10 { border-color: rgba(15, 23, 42, 0.10) !important; }
+html.light .border-white\/15 { border-color: rgba(15, 23, 42, 0.14) !important; }
+html.light .bg-ink\/80, html.light .bg-ink\/95 { background-color: rgba(255, 255, 255, 0.96) !important; }
+
+/* the "macOS dots" header on the hero preview reads fine on both themes */
+html.light .ring-ink { --tw-ring-color: var(--bg) !important; }
+
+/* ---------- Motion preferences ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+}
